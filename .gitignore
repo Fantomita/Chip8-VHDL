@@ -1,0 +1,52 @@
+# --- Vivado Temporary/Log Files ---
+*.log
+*.jou
+*.str
+*.os
+*.pb
+*.jou
+vivado_*.str
+vivado_*.jou
+
+# --- Directory-based Junk ---
+.Xil/
+.srcs/sources_1/ipshared/
+.srcs/sources_1/ip/
+
+# --- Simulation Files ---
+*.sim/
+xsim.dir/
+*.vdbg
+*.mif
+*.mem
+*.sh
+*.tcl
+# Note: Keep .tcl if they are your custom scripts, 
+# but Vivado often generates temp ones in sim folders.
+
+# --- Compilation/Output Artifacts ---
+*.jou
+*.log
+*.pb
+*.prm
+*.bit
+*.bin
+*.mcs
+*.pdi
+*.ltx
+usage_statistics_webtalk.*
+
+# --- Vivado Project Infrastructure ---
+# Usually, you only want to keep the .xpr and the .srcs directory.
+# The following are derived and can be regenerated.
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.gen/
+
+# --- SDK/Vitis Files (if applicable) ---
+*.sdk/
+*.vitis/
+.metadata/
+RemoteSDKExplorerDirectory/
