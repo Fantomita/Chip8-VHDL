@@ -62,7 +62,8 @@ type CPU_STATE is (
     SKIP_INSTRUCTION,
     WRITE_STACK,
     CHECK_ZERO,
-    STORE_VX_REG
+    STORE_VX_REG,
+    STORE_CARRY_REG
 );
 
 signal state_i : CPU_STATE := WAIT_CLK;
@@ -148,8 +149,21 @@ register_file_register_data2 : entity WORK.register_generic generic map (SIZE =>
    data_out => register_file_data2_sync_i
 );
 
-register_file_write_add_i <= x_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG);
-register_file_write_data_i <= kk_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else register_file_data2_sync_i;
+register_file_write_add_i <= x_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else
+                             x_i when (opc_i = ADD_BYTE and state_i = STORE_VX_REG) else
+                             x_i when (opc_i = LD_REG and state_i = STORE_VX_REG) else
+                             x_i when (opc_i = OR_REG and state_i = STORE_VX_REG) else
+                             x_i when (opc_i = AND_REG and state_i = STORE_VX_REG) else
+                             x_i when (opc_i = XOR_REG and state_i = STORE_VX_REG) else
+                             x"F" when (opc_i = ADD_REG and state_i = STORE_CARRY_REG);
+register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else
+                              alu_data_out_i when (opc_i = ADD_BYTE and state_i = STORE_VX_REG) else
+                              alu_data_out_i when (opc_i = LD_REG and state_i = STORE_VX_REG) else
+                              alu_data_out_i when (opc_i = OR_REG and state_i = STORE_VX_REG) else
+                              alu_data_out_i when (opc_i = AND_REG and state_i = STORE_VX_REG) else
+                              alu_data_out_i when (opc_i = XOR_REG and state_i = STORE_VX_REG) else
+                              
+                              register_file_data2_sync_i;
 register_file_WE_i <= '1' when (state_i = STORE_VX_REG) else '0';
 
 with opc_i select register_file_read_add1_i <=
@@ -162,7 +176,7 @@ with opc_i select register_file_read_add2_i <=
 instruction_decoder : entity WORK.instruction_decoder port map (
    instruction => instruction_i,
    x => x_i,
-   y => y_i,
+   y => y_i,s
    nnn => nnn_i,
    kk => kk_i,
    n => n_i,
@@ -240,6 +254,8 @@ with opc_i select alu_data_a_i <=
     register_file_data1_sync_i when others;
     
 with opc_i select alu_data_b_i <=
+    kk_i when LD_BYTE,
+    kk_i when ADD_BYTE,
     register_file_data2_sync_i when others;
     
 
@@ -283,10 +299,14 @@ begin
                                 state_i <= CHECK_ZERO;
                             when LD_BYTE => 
                                 state_i <= STORE_VX_REG;
---                            when ADD_BYTE => ;
---                            when LD_REG => ;
---                            when OR_REG => ;
---                            when AND_REG => ;
+                            when ADD_BYTE => 
+                                state_i <= STORE_VX_REG;
+                            when LD_REG => 
+                                state_i <= STORE_VX_REG;
+                            when OR_REG => 
+                                state_i <= STORE_VX_REG;
+                            when AND_REG => 
+                                state_i <= STORE_VX_REG;
 --                            when XOR_REG => ;
 --                            when ADD_REG => ;
 --                            when SUB_REG => ;
@@ -325,6 +345,9 @@ begin
                         end if;
                     when STORE_VX_REG =>
                         state_i <= WAIT_CLK;
+                        wait_state_i <= WAIT_CLK;
+                    when STORE_VX_REG =>
+                        state_i <= STORE_VX_REG;
                         wait_state_i <= WAIT_CLK;
                         
                     when WAIT_CYCLE =>
