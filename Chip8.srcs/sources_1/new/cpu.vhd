@@ -109,20 +109,21 @@ signal read_instruction_low : STD_LOGIC;
 signal read_instruction_high : STD_LOGIC;
 
 -- STACK SIGNALS
-
 signal stack_data_in_i : unsigned (11 downto 0);
 signal stack_data_out_i : unsigned (11 downto 0);
 signal stack_EN_i : std_logic;
 signal stack_op_i : StackOp;
 
 -- ALU SIGNALS
-
 signal alu_data_a_i : unsigned (7 downto 0);
 signal alu_data_b_i : unsigned (7 downto 0);
 signal alu_carry_i : STD_LOGIC;
 signal alu_data_out_i : unsigned (7 downto 0);
 signal alu_zf_i : STD_LOGIC;
 signal alu_op_i : ALUOp;
+
+-- RNG SIGNALS
+signal rng_data_i : unsigned (7 downto 0);
 
 begin
 
@@ -183,7 +184,8 @@ register_file_write_add_i <= x_i when (opc_i = LD_BYTE and state_i = STORE_VX_RE
                              x_i when (opc_i = SUBN_REG and state_i = STORE_VX_REG) else
                              x"F" when (opc_i = SUBN_REG and state_i = STORE_CARRY_REG) else
                              x_i when (opc_i = SHL and state_i = STORE_VX_REG) else
-                             x"F" when (opc_i = SHL and state_i = STORE_CARRY_REG);
+                             x"F" when (opc_i = SHL and state_i = STORE_CARRY_REG) else
+                             x_i when (opc_i = RND and state_i = STORE_VX_REG);
                              
 register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = ADD_BYTE and state_i = STORE_VX_REG) else
@@ -201,6 +203,7 @@ register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i =
                               alu_data_out_i when (opc_i = SUBN_REG and state_i = STORE_VX_REG) else
                               "0000000" & alu_carry_i when (opc_i = SHL and state_i = STORE_CARRY_REG) else
                               alu_data_out_i when (opc_i = SHL and state_i = STORE_VX_REG) else
+                              alu_data_out_i when (opc_i = RND and state_i = STORE_VX_REG) else
                               register_file_data2_sync_i;
 register_file_WE_i <= '1' when (state_i = STORE_VX_REG or state_i = STORE_CARRY_REG) else '0';
 
@@ -293,6 +296,7 @@ alu_decoder : entity WORK.ALU_decoder port map (
 ); 
 
 with opc_i select alu_data_a_i <=
+    rng_data_i when RND,
     register_file_data1_sync_i when others;
     
 with opc_i select alu_data_b_i <=
@@ -300,8 +304,14 @@ with opc_i select alu_data_b_i <=
     kk_i when SNE_BYTE,
     kk_i when LD_BYTE,
     kk_i when ADD_BYTE,
+    kk_i when RND,
     register_file_data2_sync_i when others;
 
+-- RNG STUFF
+rng : entity WORK.rng port map (
+    CLK => CLK,
+    data_out => rng_data_i
+);
 
 process(clk)
 begin
@@ -368,7 +378,8 @@ begin
                                 state_i <= STORE_I_REG;
                             when JP_REG => 
                                 state_i <= JUMP_RELATIVE;
---                            when RND => ;
+                            when RND => 
+                                state_i <= STORE_VX_REG;
 --                            when DRW => ;
 --                            when SKP_KEY => ;
 --                            when SKNP_KEY => ;
