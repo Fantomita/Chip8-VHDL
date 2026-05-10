@@ -50,6 +50,7 @@ signal result_i : unsigned (8 downto 0);
 begin
 
 process(data_a, data_b, op)
+    variable result_v : unsigned (8 downto 0);
 begin
     case op is
         when PASS_A => 
@@ -65,12 +66,9 @@ begin
             result_i <= '0' & data_a (6 downto 0) & '0';
             carry <= data_a (7);
         when ADD_OP => 
-            result_i <= ('0' & data_a) + ('0' & data_b);
-            if (data_a + data_b > 255) then 
-                carry <= '1';
-            else
-                carry <= '0';
-            end if;
+            result_v := ('0' & data_a) + ('0' & data_b);
+            result_i <= result_v;
+            carry <= result_v (8);
         when SUB_OP => 
             result_i <= ('0' & data_a) - ('0' & data_b);
             if (data_a > data_b) then

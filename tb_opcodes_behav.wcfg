@@ -11,13 +11,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="560.416 ns"></ZoomStartTime>
-      <ZoomEndTime time="637.917 ns"></ZoomEndTime>
-      <Cursor1Time time="625.000 ns"></Cursor1Time>
+      <ZoomStartTime time="1,823.260 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,900.762 ns"></ZoomEndTime>
+      <Cursor1Time time="1,831.120 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="173"></NameColumnWidth>
-      <ValueColumnWidth column_width="76"></ValueColumnWidth>
+      <ValueColumnWidth column_width="72"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="15" />
    <wvobject type="logic" fp_name="/tb_opcodes/CLK">
@@ -79,5 +79,6 @@
    <wvobject type="array" fp_name="/tb_opcodes/cpu/register_file/V">
       <obj_property name="ElementShortName">V[0:15][7:0]</obj_property>
       <obj_property name="ObjectShortName">V[0:15][7:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
    </wvobject>
 </wave_config>

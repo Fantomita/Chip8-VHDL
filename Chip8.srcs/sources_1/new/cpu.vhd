@@ -63,11 +63,17 @@ type CPU_STATE is (
     WRITE_STACK,
     CHECK_ZERO,
     STORE_VX_REG,
-    STORE_CARRY_REG
+    STORE_CARRY_REG,
+    STORE_I_REG
 );
 
 signal state_i : CPU_STATE := WAIT_CLK;
 signal wait_state_i : CPU_STATE := WAIT_CLK;
+
+-- I REGISTER SIGNALS
+signal i_register_enable_i : STD_LOGIC;
+signal i_register_data_in_i : unsigned (11 downto 0);
+signal i_register_data_out_i : unsigned (11 downto 0);
 
 -- REGISTER FILE SIGNALS
 
@@ -120,6 +126,19 @@ signal alu_op_i : ALUOp;
 
 begin
 
+-- I REGISTER STUFF
+i_register : entity WORK.register_generic generic map (SIZE => 12) port map (
+    CLK => CLK,
+    RST => RST,
+    EN => i_register_enable_i,
+    data_in => i_register_data_in_i,
+    data_out => i_register_data_out_i
+);
+
+i_register_enable_i <= '1' when (state_i = STORE_I_REG) else '0';
+i_register_data_in_i <= nnn_i when (opc_i = LD_ADDR and state_i = STORE_I_REG) else x"000";
+
+
 -- REGISTER FILE STUFF
 register_file : entity WORK.register_file port map (
     read_add1 => register_file_read_add1_i,
@@ -155,28 +174,51 @@ register_file_write_add_i <= x_i when (opc_i = LD_BYTE and state_i = STORE_VX_RE
                              x_i when (opc_i = OR_REG and state_i = STORE_VX_REG) else
                              x_i when (opc_i = AND_REG and state_i = STORE_VX_REG) else
                              x_i when (opc_i = XOR_REG and state_i = STORE_VX_REG) else
-                             x"F" when (opc_i = ADD_REG and state_i = STORE_CARRY_REG);
+                             x_i when (opc_i = ADD_REG and state_i = STORE_VX_REG) else
+                             x"F" when (opc_i = ADD_REG and state_i = STORE_CARRY_REG) else
+                             x_i when (opc_i = SUB_REG and state_i = STORE_VX_REG) else
+                             x"F" when (opc_i = SUB_REG and state_i = STORE_CARRY_REG) else
+                             x_i when (opc_i = SHR and state_i = STORE_VX_REG) else
+                             x"F" when (opc_i = SHR and state_i = STORE_CARRY_REG) else
+                             x_i when (opc_i = SUBN_REG and state_i = STORE_VX_REG) else
+                             x"F" when (opc_i = SUBN_REG and state_i = STORE_CARRY_REG) else
+                             x_i when (opc_i = SHL and state_i = STORE_VX_REG) else
+                             x"F" when (opc_i = SHL and state_i = STORE_CARRY_REG);
+                             
 register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = ADD_BYTE and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = LD_REG and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = OR_REG and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = AND_REG and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = XOR_REG and state_i = STORE_VX_REG) else
-                              
+                              "0000000" & alu_carry_i when (opc_i = ADD_REG and state_i = STORE_CARRY_REG) else
+                              alu_data_out_i when (opc_i = ADD_REG and state_i = STORE_VX_REG) else
+                              "0000000" & alu_carry_i when (opc_i = SUB_REG and state_i = STORE_CARRY_REG) else 
+                              alu_data_out_i when (opc_i = SUB_REG and state_i = STORE_VX_REG) else
+                              "0000000" & alu_carry_i when (opc_i = SHR and state_i = STORE_CARRY_REG) else
+                              alu_data_out_i when (opc_i = SHR and state_i = STORE_VX_REG) else
+                              "0000000" & alu_carry_i when (opc_i = SUBN_REG and state_i = STORE_CARRY_REG) else
+                              alu_data_out_i when (opc_i = SUBN_REG and state_i = STORE_VX_REG) else
+                              "0000000" & alu_carry_i when (opc_i = SHL and state_i = STORE_CARRY_REG) else
+                              alu_data_out_i when (opc_i = SHL and state_i = STORE_VX_REG) else
                               register_file_data2_sync_i;
-register_file_WE_i <= '1' when (state_i = STORE_VX_REG) else '0';
+register_file_WE_i <= '1' when (state_i = STORE_VX_REG or state_i = STORE_CARRY_REG) else '0';
+
 
 with opc_i select register_file_read_add1_i <=
+    y_i when SUBN_REG,
     x_i when others; -- TO BE MODIFIED
     
 with opc_i select register_file_read_add2_i <=
+    x_i when SUBN_REG,
+    x"0" when JP_REG,
     y_i when others; -- TO BE MODIFIED
 
 -- INSTRUCTION DECODER STUFF
 instruction_decoder : entity WORK.instruction_decoder port map (
    instruction => instruction_i,
    x => x_i,
-   y => y_i,s
+   y => y_i,
    nnn => nnn_i,
    kk => kk_i,
    n => n_i,
@@ -195,7 +237,7 @@ pc_reg : entity WORK.program_counter port map (
 
 inc_pc_i <= '1' when (state_i = INCREMENT_PC) else '0';
 load_pc_i <= '1' when (state_i = JUMP_ADDRESS or state_i = JUMP_RELATIVE or state_i = SKIP_INSTRUCTION) else '0';
-load_pc_data_i <= nnn_i when (state_i = JUMP_ADDRESS) else (nnn_i + 0) when (state_i = JUMP_RELATIVE) else x"200";
+load_pc_data_i <= nnn_i when (state_i = JUMP_ADDRESS) else (nnn_i + ("0000" & alu_data_out_i)) when (state_i = JUMP_RELATIVE) else x"200";
         
 -- RAM STUFF
 instruction_register_high : entity WORK.register_generic generic map (SIZE => 8) port map (
@@ -233,7 +275,7 @@ stack : entity WORK.stack port map (
 
 stack_EN_i <= '1' when (state_i = WRITE_STACK) else '0';
 stack_op_i <= PUSH when (state_i = WRITE_STACK) else POP;
-stack_data_in_i <= pc_out_i when (state_i = WRITE_STACK ) else x"000";
+stack_data_in_i <= pc_out_i + 2 when (state_i = WRITE_STACK ) else x"000";
 
 -- ALU STUFF
 alu : entity WORK.ALU port map (
@@ -254,10 +296,11 @@ with opc_i select alu_data_a_i <=
     register_file_data1_sync_i when others;
     
 with opc_i select alu_data_b_i <=
+    kk_i when SE_BYTE,
+    kk_i when SNE_BYTE,
     kk_i when LD_BYTE,
     kk_i when ADD_BYTE,
     register_file_data2_sync_i when others;
-    
 
 
 process(clk)
@@ -307,15 +350,24 @@ begin
                                 state_i <= STORE_VX_REG;
                             when AND_REG => 
                                 state_i <= STORE_VX_REG;
---                            when XOR_REG => ;
---                            when ADD_REG => ;
---                            when SUB_REG => ;
---                            when SHR => ;
---                            when SUBN_REG => ;
---                            when SHL => ;
---                            when SNE_REG => ;
---                            when LD_ADDR => ;
---                            when JP_REG => ;
+                            when XOR_REG =>
+                                state_i <= STORE_VX_REG;
+                            when ADD_REG => 
+                                state_i <= STORE_CARRY_REG;
+                            when SUB_REG => 
+                                state_i <= STORE_CARRY_REG;
+                            when SHR => 
+                                state_i <= STORE_CARRY_REG;
+                            when SUBN_REG => 
+                                state_i <= STORE_CARRY_REG;
+                            when SHL => 
+                                state_i <= STORE_CARRY_REG;
+                            when SNE_REG => 
+                                state_i <= CHECK_ZERO;
+                            when LD_ADDR =>    
+                                state_i <= STORE_I_REG;
+                            when JP_REG => 
+                                state_i <= JUMP_RELATIVE;
 --                            when RND => ;
 --                            when DRW => ;
 --                            when SKP_KEY => ;
@@ -333,6 +385,8 @@ begin
                         end case;
                     when JUMP_ADDRESS =>
                         state_i <= WAIT_CLK;
+                    when JUMP_RELATIVE =>
+                        state_i <= WAIT_CLK;
                     when WRITE_STACK =>
                         state_i <= JUMP_ADDRESS;
                     when CHECK_ZERO =>
@@ -340,14 +394,17 @@ begin
                         if (alu_ZF_i = '1' and (opc_i = SE_BYTE or opc_i = SE_REG)) then
                             state_i <= INCREMENT_PC;
                         end if;
-                        if (alu_ZF_i = '0' and opc_i = SNE_BYTE) then
+                        if (alu_ZF_i = '0' and (opc_i = SNE_BYTE or opc_i = SNE_REG)) then
                             state_i <= INCREMENT_PC;
                         end if;
                     when STORE_VX_REG =>
                         state_i <= WAIT_CLK;
                         wait_state_i <= WAIT_CLK;
-                    when STORE_VX_REG =>
+                    when STORE_CARRY_REG =>
                         state_i <= STORE_VX_REG;
+                        wait_state_i <= WAIT_CLK;
+                    when STORE_I_REG =>
+                        state_i <= WAIT_CLK;
                         wait_state_i <= WAIT_CLK;
                         
                     when WAIT_CYCLE =>
