@@ -13,7 +13,7 @@
 -- Dependencies: 
 -- 
 -- Revision:
--- Revision 0.01 - File Created
+-- Revision 0.01 - File Created1
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
@@ -37,8 +37,9 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity cpu is
     Port ( CLK : in STD_LOGIC;
-           CE : in STD_LOGIC;
            RST: in STD_LOGIC;
+           tick_cpu : in STD_LOGIC;
+           tick_timer : in STD_LOGIC;
            ram_read_address : out unsigned (11 downto 0);
            ram_RE : out STD_LOGIC;
            ram_write_address : out unsigned (11 downto 0);
@@ -125,6 +126,18 @@ signal alu_op_i : ALUOp;
 -- RNG SIGNALS
 signal rng_data_i : unsigned (7 downto 0);
 
+-- DELAY TIMER SIGNALS
+signal dt_load_enable_i : STD_LOGIC;
+signal dt_load_data_i : unsigned (7 downto 0);
+signal dt_data_out_i : unsigned (7 downto 0);
+signal dt_nonzero_i : STD_LOGIC;
+
+-- SOUND TIMER SIGNALS
+signal st_load_enable_i : STD_LOGIC;
+signal st_load_data_i : unsigned (7 downto 0);
+signal st_data_out_i : unsigned (7 downto 0);
+signal st_nonzero_i : STD_LOGIC;
+
 begin
 
 -- I REGISTER STUFF
@@ -185,7 +198,9 @@ register_file_write_add_i <= x_i when (opc_i = LD_BYTE and state_i = STORE_VX_RE
                              x"F" when (opc_i = SUBN_REG and state_i = STORE_CARRY_REG) else
                              x_i when (opc_i = SHL and state_i = STORE_VX_REG) else
                              x"F" when (opc_i = SHL and state_i = STORE_CARRY_REG) else
-                             x_i when (opc_i = RND and state_i = STORE_VX_REG);
+                             x_i when (opc_i = RND and state_i = STORE_VX_REG) else
+                             x_i when (opc_i = LD_TIMER and state_i = STORE_VX_REG) else
+                             x"0";
                              
 register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = ADD_BYTE and state_i = STORE_VX_REG) else
@@ -204,7 +219,8 @@ register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i =
                               "0000000" & alu_carry_i when (opc_i = SHL and state_i = STORE_CARRY_REG) else
                               alu_data_out_i when (opc_i = SHL and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = RND and state_i = STORE_VX_REG) else
-                              register_file_data2_sync_i;
+                              dt_data_out_i when (opc_i = LD_TIMER and state_i = STORE_VX_REG) else
+                              x"00";
 register_file_WE_i <= '1' when (state_i = STORE_VX_REG or state_i = STORE_CARRY_REG) else '0';
 
 
@@ -313,13 +329,42 @@ rng : entity WORK.rng port map (
     data_out => rng_data_i
 );
 
-process(clk)
+-- DELAY TIMER STUFF
+dt : entity WORK.timer port map (
+    CLK => CLK,
+    CE => tick_timer,
+    RST => RST,
+    load_enable => dt_load_enable_i,
+    load_data => dt_load_data_i,
+    data_out => dt_data_out_i,
+    nonzero => dt_nonzero_i
+);
+
+dt_load_enable_i <= '1' when (opc_i = LD_DELAY) else '0';
+dt_load_data_i <= register_file_data1_sync_i;
+
+
+-- SOUND TIMER STUFF
+st : entity WORK.timer port map (
+    CLK => CLK,
+    CE => tick_timer,
+    RST => RST,
+    load_enable => st_load_enable_i,
+    load_data => st_load_data_i,
+    data_out => st_data_out_i,
+    nonzero => st_nonzero_i
+);
+
+dt_load_enable_i <= '1' when (opc_i = LD_SOUND) else '0';
+dt_load_data_i <= register_file_data1_sync_i;
+
+process(CLK)
 begin
-    if rising_edge(clk) then
+    if rising_edge(CLK) then
         if  RST = '1' then
             null;
         else
-            if  CE = '1' then
+            if  tick_cpu = '1' then
                 case state_i is
                     when FETCH_HI =>
                         if  ram_read_ack = '1' then
@@ -383,10 +428,13 @@ begin
 --                            when DRW => ;
 --                            when SKP_KEY => ;
 --                            when SKNP_KEY => ;
---                            when LD_TIMER => ;
+                            when LD_TIMER => 
+                                state_i <= STORE_VX_REG;
 --                            when LD_KEY => ;
---                            when LD_DELAY => ;
---                            when LD_SOUND => ;
+                            when LD_DELAY => 
+                                null;
+                            when LD_SOUND => 
+                                null;
 --                            when ADD_I_REG => ;
 --                            when LD_I_REG => ;
 --                            when LD_BCD_REG => ;
@@ -422,7 +470,7 @@ begin
                         state_i <= wait_state_i;
                         wait_state_i <= WAIT_CLK;
                     when WAIT_CLK =>
-                        if CE = '1' then
+                        if tick_cpu = '1' then
                             state_i <= FETCH_HI; -- update memory counter when that exists
                         end if;
                         wait_state_i <= WAIT_CLK;
