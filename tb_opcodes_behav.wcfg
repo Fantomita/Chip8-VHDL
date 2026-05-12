@@ -3,82 +3,41 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="tb_opcodes_behav.wdb" id="1">
+      <db_ref path="bcd_behav.wdb" id="1">
          <top_modules>
-            <top_module name="common" />
-            <top_module name="tb_opcodes" />
+            <top_module name="bcd" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1,823.260 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,900.762 ns"></ZoomEndTime>
-      <Cursor1Time time="1,831.120 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="77.504 ns"></ZoomEndTime>
+      <Cursor1Time time="0.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="173"></NameColumnWidth>
-      <ValueColumnWidth column_width="72"></ValueColumnWidth>
+      <ValueColumnWidth column_width="64"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="15" />
-   <wvobject type="logic" fp_name="/tb_opcodes/CLK">
-      <obj_property name="ElementShortName">CLK</obj_property>
-      <obj_property name="ObjectShortName">CLK</obj_property>
+   <WVObjectSize size="5" />
+   <wvobject type="array" fp_name="/bcd/bcd_input">
+      <obj_property name="ElementShortName">bcd_input[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_input[7:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/tb_opcodes/CE">
-      <obj_property name="ElementShortName">CE</obj_property>
-      <obj_property name="ObjectShortName">CE</obj_property>
+   <wvobject type="array" fp_name="/bcd/digit2">
+      <obj_property name="ElementShortName">digit2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">digit2[3:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/tb_opcodes/RST">
-      <obj_property name="ElementShortName">RST</obj_property>
-      <obj_property name="ObjectShortName">RST</obj_property>
+   <wvobject type="array" fp_name="/bcd/digit1">
+      <obj_property name="ElementShortName">digit1[3:0]</obj_property>
+      <obj_property name="ObjectShortName">digit1[3:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/tb_opcodes/ram_read_address">
-      <obj_property name="ElementShortName">ram_read_address[11:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_read_address[11:0]</obj_property>
+   <wvobject type="array" fp_name="/bcd/digit0">
+      <obj_property name="ElementShortName">digit0[3:0]</obj_property>
+      <obj_property name="ObjectShortName">digit0[3:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/tb_opcodes/ram_RE">
-      <obj_property name="ElementShortName">ram_RE</obj_property>
-      <obj_property name="ObjectShortName">ram_RE</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/tb_opcodes/ram_write_address">
-      <obj_property name="ElementShortName">ram_write_address[11:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_write_address[11:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/tb_opcodes/ram_write_data">
-      <obj_property name="ElementShortName">ram_write_data[7:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_write_data[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/tb_opcodes/ram_WE">
-      <obj_property name="ElementShortName">ram_WE</obj_property>
-      <obj_property name="ObjectShortName">ram_WE</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/tb_opcodes/ram_read_data">
-      <obj_property name="ElementShortName">ram_read_data[7:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_read_data[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/tb_opcodes/ram_read_ack">
-      <obj_property name="ElementShortName">ram_read_ack</obj_property>
-      <obj_property name="ObjectShortName">ram_read_ack</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/tb_opcodes/rom">
-      <obj_property name="ElementShortName">rom[0:4095][7:0]</obj_property>
-      <obj_property name="ObjectShortName">rom[0:4095][7:0]</obj_property>
-   </wvobject>
-   <wvobject type="other" fp_name="/tb_opcodes/cpu/opc_i">
-      <obj_property name="ElementShortName">opc_i</obj_property>
-      <obj_property name="ObjectShortName">opc_i</obj_property>
-   </wvobject>
-   <wvobject type="other" fp_name="/tb_opcodes/cpu/state_i">
-      <obj_property name="ElementShortName">state_i</obj_property>
-      <obj_property name="ObjectShortName">state_i</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/tb_opcodes/cpu/pc_out_i">
-      <obj_property name="ElementShortName">pc_out_i[11:0]</obj_property>
-      <obj_property name="ObjectShortName">pc_out_i[11:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/tb_opcodes/cpu/register_file/V">
-      <obj_property name="ElementShortName">V[0:15][7:0]</obj_property>
-      <obj_property name="ObjectShortName">V[0:15][7:0]</obj_property>
+   <wvobject type="array" fp_name="/bcd/result">
+      <obj_property name="ElementShortName">result[11:0]</obj_property>
+      <obj_property name="ObjectShortName">result[11:0]</obj_property>
       <obj_property name="isExpanded"></obj_property>
    </wvobject>
 </wave_config>
