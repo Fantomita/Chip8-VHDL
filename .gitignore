@@ -50,3 +50,5 @@ usage_statistics_webtalk.*
 *.vitis/
 .metadata/
 RemoteSDKExplorerDirectory/
+
+.gitmessage
