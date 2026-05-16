@@ -38,7 +38,8 @@ end tb_opcodes;
 architecture Behavioral of tb_opcodes is
 
 signal CLK               : STD_LOGIC := '0';
-signal CE                : STD_LOGIC := '1';
+signal tick_cpu                : STD_LOGIC := '1';
+signal tick_timer                : STD_LOGIC := '1';
 signal RST               : STD_LOGIC := '0';
 signal ram_read_address  : unsigned (11 downto 0);
 signal ram_RE            : STD_LOGIC;
@@ -47,6 +48,8 @@ signal ram_write_data    : unsigned (7 downto 0);
 signal ram_WE            : STD_LOGIC;
 signal ram_read_data     : unsigned (7 downto 0);
 signal ram_read_ack      : STD_LOGIC;
+signal debug_register_file_read_add : unsigned (3 downto 0);
+signal debug_register_file_read_data :   unsigned (7 downto 0);
 
 type rom_type is array (0 to 4095) of unsigned (7 downto 0);
 signal rom : rom_type := (
@@ -54,8 +57,8 @@ signal rom : rom_type := (
     16#199# => x"FF",
     16#200# => x"60", --LD_V0_12
     16#201# => x"12",
-    16#202# => x"63", --LD_V3_14
-    16#203# => x"14",
+    16#202# => x"F0", --ADD_I_V0
+    16#203# => x"1E",
     16#204# => x"30", --SE_V0_12
     16#205# => x"13",
     16#206# => x"61", --LD_V1_98
@@ -86,7 +89,8 @@ begin
 
     cpu : entity work.cpu port map (
         CLK               => CLK,
-        CE                => CE,
+        tick_cpu                => tick_cpu,
+        tick_timer                => tick_timer,
         RST               => RST,
         ram_read_address  => ram_read_address,
         ram_RE            => ram_RE,
@@ -94,7 +98,9 @@ begin
         ram_write_data    => ram_write_data,
         ram_WE            => ram_WE,
         ram_read_data     => ram_read_data,
-        ram_read_ack      => ram_read_ack
+        ram_read_ack      => ram_read_ack,
+        debug_register_file_read_add => debug_register_file_read_add,
+        debug_register_file_read_data => debug_register_file_read_data
     );
 
     -- synchronous ROM

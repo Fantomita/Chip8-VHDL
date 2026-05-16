@@ -152,7 +152,9 @@ i_register : entity WORK.register_generic generic map (SIZE => 12) port map (
 );
 
 i_register_enable_i <= '1' when (state_i = STORE_I_REG) else '0';
-i_register_data_in_i <= nnn_i when (opc_i = LD_ADDR and state_i = STORE_I_REG) else x"000";
+i_register_data_in_i <= nnn_i when (opc_i = LD_ADDR and state_i = STORE_I_REG) else
+                        ("0000" & alu_data_out_i) + i_register_data_out_i when (opc_i = ADD_I_REG and state_i = STORE_I_REG) else
+                         x"000";
 
 
 -- REGISTER FILE STUFF
@@ -368,122 +370,123 @@ begin
         if  RST = '1' then
             null;
         else
-            case state_i is
-                when FETCH_HI =>
-                    if  ram_read_ack = '1' then
+                case state_i is
+                    when FETCH_HI =>
+                        if  ram_read_ack = '1' then
+                            state_i <= WAIT_CYCLE;
+                            wait_state_i <= FETCH_LO;
+                        end if;
+                    when FETCH_LO =>
+                        if  ram_read_ack = '1' then
+                            state_i <= WAIT_CYCLE;
+                            wait_state_i <= INCREMENT_PC;
+                        end if;
+                    when INCREMENT_PC =>
                         state_i <= WAIT_CYCLE;
-                        wait_state_i <= FETCH_LO;
-                    end if;
-                when FETCH_LO =>
-                    if  ram_read_ack = '1' then
-                        state_i <= WAIT_CYCLE;
-                        wait_state_i <= INCREMENT_PC;
-                    end if;
-                when INCREMENT_PC =>
-                    state_i <= WAIT_CYCLE;
-                    wait_state_i <= DECODE;
-                when DECODE =>
-                    state_i <= WAIT_CLK;
-                    wait_state_i <= WAIT_CLK;
-                    case opc_i is
+                        wait_state_i <= DECODE;
+                    when DECODE =>
+                        state_i <= WAIT_CLK;
+                        wait_state_i <= WAIT_CLK;
+                        case opc_i is
 --                            when CLS => ;
 --                            when RET => ;
-                        when JP_ADDR => 
-                            state_i <= JUMP_ADDRESS; -- ????
-                        when CALL_ADDR => 
-                            state_i <= WRITE_STACK;
-                        when SE_BYTE =>
-                            state_i <= CHECK_ZERO;
-                        when SNE_BYTE => 
-                            state_i <= CHECK_ZERO;
-                        when SE_REG => 
-                            state_i <= CHECK_ZERO;
-                        when LD_BYTE => 
-                            state_i <= STORE_VX_REG;
-                        when ADD_BYTE => 
-                            state_i <= STORE_VX_REG;
-                        when LD_REG => 
-                            state_i <= STORE_VX_REG;
-                        when OR_REG => 
-                            state_i <= STORE_VX_REG;
-                        when AND_REG => 
-                            state_i <= STORE_VX_REG;
-                        when XOR_REG =>
-                            state_i <= STORE_VX_REG;
-                        when ADD_REG => 
-                            state_i <= STORE_CARRY_REG;
-                        when SUB_REG => 
-                            state_i <= STORE_CARRY_REG;
-                        when SHR => 
-                            state_i <= STORE_CARRY_REG;
-                        when SUBN_REG => 
-                            state_i <= STORE_CARRY_REG;
-                        when SHL => 
-                            state_i <= STORE_CARRY_REG;
-                        when SNE_REG => 
-                            state_i <= CHECK_ZERO;
-                        when LD_ADDR =>    
-                            state_i <= STORE_I_REG;
-                        when JP_REG => 
-                            state_i <= JUMP_RELATIVE;
-                        when RND => 
-                            state_i <= STORE_VX_REG;
+                            when JP_ADDR => 
+                                state_i <= JUMP_ADDRESS; -- ????
+                            when CALL_ADDR => 
+                                state_i <= WRITE_STACK;
+                            when SE_BYTE =>
+                                state_i <= CHECK_ZERO;
+                            when SNE_BYTE => 
+                                state_i <= CHECK_ZERO;
+                            when SE_REG => 
+                                state_i <= CHECK_ZERO;
+                            when LD_BYTE => 
+                                state_i <= STORE_VX_REG;
+                            when ADD_BYTE => 
+                                state_i <= STORE_VX_REG;
+                            when LD_REG => 
+                                state_i <= STORE_VX_REG;
+                            when OR_REG => 
+                                state_i <= STORE_VX_REG;
+                            when AND_REG => 
+                                state_i <= STORE_VX_REG;
+                            when XOR_REG =>
+                                state_i <= STORE_VX_REG;
+                            when ADD_REG => 
+                                state_i <= STORE_CARRY_REG;
+                            when SUB_REG => 
+                                state_i <= STORE_CARRY_REG;
+                            when SHR => 
+                                state_i <= STORE_CARRY_REG;
+                            when SUBN_REG => 
+                                state_i <= STORE_CARRY_REG;
+                            when SHL => 
+                                state_i <= STORE_CARRY_REG;
+                            when SNE_REG => 
+                                state_i <= CHECK_ZERO;
+                            when LD_ADDR =>    
+                                state_i <= STORE_I_REG;
+                            when JP_REG => 
+                                state_i <= JUMP_RELATIVE;
+                            when RND => 
+                                state_i <= STORE_VX_REG;
 --                            when DRW => ;
 --                            when SKP_KEY => ;
 --                            when SKNP_KEY => ;
-                        when LD_TIMER => 
-                            state_i <= STORE_VX_REG;
+                            when LD_TIMER => 
+                                state_i <= STORE_VX_REG;
 --                            when LD_KEY => ;
-                        when LD_DELAY => 
-                            null;
-                        when LD_SOUND => 
-                            null;
---                            when ADD_I_REG => ;
+                            when LD_DELAY => 
+                                null;
+                            when LD_SOUND => 
+                                null;
+                            when ADD_I_REG => 
+                                state_i <= STORE_I_REG;
 --                            when LD_I_REG => ;
 --                            when LD_BCD_REG => ;
 --                            when LD_I_REGS => ;
 --                            when LD_REGS_I => ;
-                        when others => null;
-                    end case;
-                when JUMP_ADDRESS =>
-                    state_i <= WAIT_CLK;
-                when JUMP_RELATIVE =>
-                    state_i <= WAIT_CLK;
-                when WRITE_STACK =>
-                    state_i <= JUMP_ADDRESS;
-                when CHECK_ZERO =>
-                    state_i <= WAIT_CLK;
-                    if (alu_ZF_i = '1' and (opc_i = SE_BYTE or opc_i = SE_REG)) then
-                        state_i <= INCREMENT_PC;
-                    end if;
-                    if (alu_ZF_i = '0' and (opc_i = SNE_BYTE or opc_i = SNE_REG)) then
-                        state_i <= INCREMENT_PC;
-                    end if;
-                when STORE_VX_REG =>
-                    state_i <= WAIT_CLK;
-                    wait_state_i <= WAIT_CLK;
-                when STORE_CARRY_REG =>
-                    state_i <= STORE_VX_REG;
-                    wait_state_i <= WAIT_CLK;
-                when STORE_I_REG =>
-                    state_i <= WAIT_CLK;
-                    wait_state_i <= WAIT_CLK;
-                    
-                when WAIT_CYCLE =>
-                    state_i <= wait_state_i;
-                    wait_state_i <= WAIT_CLK;
-                when WAIT_CLK =>
-                    if tick_cpu = '1' then
-                        state_i <= FETCH_HI; -- update memory counter when that exists
-                    end if;
-                    wait_state_i <= WAIT_CLK;
-                    
-                when others => null;
-            end case;
+                            when others => null;
+                        end case;
+                    when JUMP_ADDRESS =>
+                        state_i <= WAIT_CLK;
+                    when JUMP_RELATIVE =>
+                        state_i <= WAIT_CLK;
+                    when WRITE_STACK =>
+                        state_i <= JUMP_ADDRESS;
+                    when CHECK_ZERO =>
+                        state_i <= WAIT_CLK;
+                        if (alu_ZF_i = '1' and (opc_i = SE_BYTE or opc_i = SE_REG)) then
+                            state_i <= INCREMENT_PC;
+                        end if;
+                        if (alu_ZF_i = '0' and (opc_i = SNE_BYTE or opc_i = SNE_REG)) then
+                            state_i <= INCREMENT_PC;
+                        end if;
+                    when STORE_VX_REG =>
+                        state_i <= WAIT_CLK;
+                        wait_state_i <= WAIT_CLK;
+                    when STORE_CARRY_REG =>
+                        state_i <= STORE_VX_REG;
+                        wait_state_i <= WAIT_CLK;
+                    when STORE_I_REG =>
+                        state_i <= WAIT_CLK;
+                        wait_state_i <= WAIT_CLK;
+                        
+                    when WAIT_CYCLE =>
+                        state_i <= wait_state_i;
+                        wait_state_i <= WAIT_CLK;
+                    when WAIT_CLK =>
+                        if tick_cpu = '1' then
+                            state_i <= FETCH_HI; -- update memory counter when that exists
+                        end if;
+                        wait_state_i <= WAIT_CLK;
+                        
+                    when others => null;
+                end case;
             
+            end if;
         end if;
-    end if;
-    
+   
 
 end process;
 

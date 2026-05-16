@@ -51,7 +51,7 @@ type ram_type is array(0 to 4095) of unsigned(7 downto 0);
 signal ram_data : ram_type := (
     16#198# => x"60",
     16#199# => x"FF",
-    16#200# => x"C0", --RND_V0_FF
+    16#200# => x"C0", --RND_V0_FF 
     16#201# => x"FF",
     16#202# => x"63", --LD_V3_14
     16#203# => x"14",
