@@ -34,10 +34,12 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity register_file is
     Port ( read_add1, read_add2 : in unsigned (3 downto 0);
+           debug_read_add : in unsigned (3 downto 0);
            write_add : in unsigned (3 downto 0);
            write_data : in unsigned (7 downto 0);
            CLK, RST, WE : in STD_LOGIC;
-           read_data1, read_data2 : out unsigned (7 downto 0));
+           read_data1, read_data2 : out unsigned (7 downto 0);
+           debug_read_data : out unsigned (7 downto 0));
 end register_file;
 
 architecture Behavioral of register_file is
@@ -60,5 +62,6 @@ end process;
 
 read_data1 <= V(to_integer(unsigned(read_add1)));
 read_data2 <= V(to_integer(unsigned(read_add2)));
+debug_read_data <= V(to_integer(unsigned(debug_read_add)));
 
 end Behavioral;

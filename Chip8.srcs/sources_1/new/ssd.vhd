@@ -26,7 +26,7 @@ architecture Behavioral of SSD is
 
 signal clock_divider : unsigned (13 downto 0) := (others => '1');
 signal CE : STD_LOGIC := '0';
-signal counter_i : unsigned (1 downto 0);
+signal counter_i : unsigned (1 downto 0) := (others => '0');
 signal out_mux_i : unsigned (3 downto 0);
 begin
 
@@ -50,19 +50,15 @@ end process;
 CE <= '1' when clock_divider = 0 else '0'; 
 
 -- MUX ANOZI
-process(CLK)
+process(counter_i)
 begin
-    if rising_edge(CLK) then
-        if CE = '1' then
-            case counter_i is 
-                when "00" => AN <= "1110";
-                when "01" => AN <= "1101";
-                when "10" => AN <= "1011";
-                when "11" => AN <= "0111";
-                when others => null;
-            end case;
-        end if;
-    end if;
+    case counter_i is 
+        when "00" => AN <= "1110";
+        when "01" => AN <= "1101";
+        when "10" => AN <= "1011";
+        when "11" => AN <= "0111";
+        when others => null;
+    end case;
 end process;
 
 process(counter_i, digit0, digit1, digit2, digit3)
@@ -100,9 +96,7 @@ begin
            when "1101" => cat<="1000010";
            when "1110" => cat<="0110000";
            when others => cat<="0111000";
-       
-
-    
+      
     end case;
 
 end process;
