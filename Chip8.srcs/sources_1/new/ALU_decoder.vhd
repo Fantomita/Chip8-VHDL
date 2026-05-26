@@ -70,7 +70,9 @@ begin
         when JP_REG             => alu_op <= PASS_B;
         when ADD_I_REG          => alu_op <= PASS_A; -- I + Vx
         
+        
         -- Others (Pass through)
+        when LD_I_REG           => alu_op <= PASS_A;
         when others             => alu_op <= PASS_B;
     end case;
 end process;

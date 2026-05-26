@@ -67,7 +67,8 @@ type CPU_STATE is (
     CHECK_ZERO,
     STORE_VX_REG,
     STORE_CARRY_REG,
-    STORE_I_REG
+    STORE_I_REG,
+    STORE_MEMORY_LOOP
 );
 
 signal state_i : CPU_STATE := WAIT_CLK;
@@ -77,9 +78,9 @@ signal wait_state_i : CPU_STATE := WAIT_CLK;
 signal i_register_enable_i : STD_LOGIC;
 signal i_register_data_in_i : unsigned (11 downto 0);
 signal i_register_data_out_i : unsigned (11 downto 0);
+signal memory_counter : unsigned (3 downto 0) := x"0";
 
 -- REGISTER FILE SIGNALS
-
 signal register_file_read_add1_i : unsigned (3 downto 0);
 signal register_file_read_add2_i : unsigned (3 downto 0);
 signal register_file_write_add_i : unsigned (3 downto 0);
@@ -154,6 +155,7 @@ i_register : entity WORK.register_generic generic map (SIZE => 12) port map (
 i_register_enable_i <= '1' when (state_i = STORE_I_REG) else '0';
 i_register_data_in_i <= nnn_i when (opc_i = LD_ADDR and state_i = STORE_I_REG) else
                         ("0000" & alu_data_out_i) + i_register_data_out_i when (opc_i = ADD_I_REG and state_i = STORE_I_REG) else
+                        ("0000" & alu_data_out_i) * 5 when (opc_i = LD_I_REG and state_i = STORE_I_REG) else
                          x"000";
 
 
@@ -442,8 +444,10 @@ begin
                                 null;
                             when ADD_I_REG => 
                                 state_i <= STORE_I_REG;
---                            when LD_I_REG => ;
---                            when LD_BCD_REG => ;
+                            when LD_I_REG => 
+                                state_i <= STORE_I_REG;
+                            when LD_BCD_REG => 
+                                state_i <= STORE_MEMORY_LOOP;
 --                            when LD_I_REGS => ;
 --                            when LD_REGS_I => ;
                             when others => null;
@@ -478,6 +482,7 @@ begin
                     when WAIT_CLK =>
                         if tick_cpu = '1' then
                             state_i <= FETCH_HI; -- update memory counter when that exists
+                            memory_counter <= x"0";
                         end if;
                         wait_state_i <= WAIT_CLK;
                         
