@@ -69,7 +69,9 @@ type CPU_STATE is (
     STORE_CARRY_REG,
     STORE_I_REG,
     STORE_MEMORY_LOOP,
-    STORE_MEMORY
+    STORE_MEMORY,
+    LOAD_MEMORY_REGS,
+    LOAD_MEMORY_REGS_LOOP
 );
 
 signal state_i : CPU_STATE := WAIT_CLK;
@@ -161,7 +163,7 @@ i_register : entity WORK.register_generic generic map (SIZE => 12) port map (
 i_register_enable_i <= '1' when (state_i = STORE_I_REG) else '0';
 i_register_data_in_i <= nnn_i when (opc_i = LD_ADDR and state_i = STORE_I_REG) else
                         ("0000" & alu_data_out_i) + i_register_data_out_i when (opc_i = ADD_I_REG and state_i = STORE_I_REG) else
-                        ("0000" & alu_data_out_i) * 5 when (opc_i = LD_I_REG and state_i = STORE_I_REG) else
+                        resize(("0000" & register_file_data1_sync_i) * 5, 12) when (opc_i = LD_I_REG and state_i = STORE_I_REG) else
                          x"000";
 
 -- REGISTER FILE STUFF
@@ -239,6 +241,7 @@ register_file_WE_i <= '1' when (state_i = STORE_VX_REG or state_i = STORE_CARRY_
 
 with opc_i select register_file_read_add1_i <=
     y_i when SUBN_REG,
+    memory_counter when LD_I_REGS,
     x_i when others; -- TO BE MODIFIED
     
 with opc_i select register_file_read_add2_i <=
@@ -295,10 +298,13 @@ ram_read_address <= pc_out_i when (state_i = FETCH_HI) else pc_out_i + 1 when (s
 read_instruction_high <= '1' when (state_i = FETCH_HI and ram_read_ack = '1') else '0';
 read_instruction_low <= '1' when (state_i = FETCH_LO and ram_read_ack = '1') else '0';
 ram_WE <= '1' when (state_i = STORE_MEMORY) else '0';
-ram_write_address <= i_register_data_out_i + ("00000000" & memory_counter (1 downto 0)) when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG) else x"000";
+ram_write_address <= i_register_data_out_i + ("0000000000" & memory_counter (1 downto 0)) when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG) else 
+                     i_register_data_out_i + ("00000000" & memory_counter) when (state_i = STORE_MEMORY and opc_i = LD_I_REGS) else
+                     x"000";
 ram_write_data <= x"0" & bcd_digit2_i when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG and memory_counter = 0) else
                   x"0" & bcd_digit1_i when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG and memory_counter = 1) else
                   x"0" & bcd_digit0_i when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG and memory_counter = 2) else
+                  register_file_data1_sync_i when (state_i = STORE_MEMORY and opc_i = LD_I_REGS) else
                   x"00";
         
 -- STACK STUFF
@@ -466,10 +472,14 @@ begin
                             when LD_I_REG => 
                                 state_i <= STORE_I_REG;
                             when LD_BCD_REG => 
-                                memory_counter <= x"2";
-                                state_i <= STORE_MEMORY;
---                            when LD_I_REGS => ;
---                            when LD_REGS_I => ;
+                                memory_counter <= x"3";
+                                state_i <= STORE_MEMORY_LOOP;
+                            when LD_I_REGS =>
+                                memory_counter <= (x_i + 1);
+                                state_i <= STORE_MEMORY_LOOP;
+                            when LD_REGS_I => 
+                                memory_counter <= (x_i + 1);
+                                state_i <= LOAD_MEMORY_REGS_LOOP;
                             when others => null;
                         end case;
                     when JUMP_ADDRESS =>
@@ -500,13 +510,29 @@ begin
                         state_i <= STORE_MEMORY;
                         wait_state_i <= WAIT_CLK;
                     when STORE_MEMORY =>
+                        state_i <= STORE_MEMORY_LOOP;
                         if (memory_counter = 0) then
                             state_i <= WAIT_CLK;
-                        else
-                            state_i <= STORE_MEMORY_LOOP;   
+                           
                         end if;
                         wait_state_i <= WAIT_CLK;
-                        
+                    ---WORK IN PROGRESS V
+                    when LOAD_MEMORY_REGS_LOOP =>
+                         memory_counter <= memory_counter - 1;
+                         state_i <= LOAD_MEMORY_REGS;
+                         wait_state_i <= WAIT_CLK;
+                    when LOAD_MEMORY_REGS =>
+                        if(ram_read_ack = '1') then
+                            state_i <= LOAD_MEMORY_REGS_LOOP;
+                            if(memory_counter = 0) then
+                                state_i <= WAIT_CLK; 
+                            end if;
+                        else
+                          state_i <= WAIT_CYCLE;
+                          wait_state_i <= LOAD_MEMORY_REGS;
+                        end if;
+
+                    --- WORK IN PROGRESS ^
                     when WAIT_CYCLE =>
                         state_i <= wait_state_i;
                         wait_state_i <= WAIT_CLK;

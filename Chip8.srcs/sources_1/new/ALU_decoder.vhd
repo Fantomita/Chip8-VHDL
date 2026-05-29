@@ -72,7 +72,7 @@ begin
         
         
         -- Others (Pass through)
-        when LD_I_REG           => alu_op <= PASS_A;
+       -- when LD_I_REG           => alu_op <= PASS_A;
         when others             => alu_op <= PASS_B;
     end case;
 end process;
