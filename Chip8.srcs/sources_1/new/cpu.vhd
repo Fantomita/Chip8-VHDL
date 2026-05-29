@@ -68,7 +68,8 @@ type CPU_STATE is (
     STORE_VX_REG,
     STORE_CARRY_REG,
     STORE_I_REG,
-    STORE_MEMORY_LOOP
+    STORE_MEMORY_LOOP,
+    STORE_MEMORY
 );
 
 signal state_i : CPU_STATE := WAIT_CLK;
@@ -78,7 +79,6 @@ signal wait_state_i : CPU_STATE := WAIT_CLK;
 signal i_register_enable_i : STD_LOGIC;
 signal i_register_data_in_i : unsigned (11 downto 0);
 signal i_register_data_out_i : unsigned (11 downto 0);
-signal memory_counter : unsigned (3 downto 0) := x"0";
 
 -- REGISTER FILE SIGNALS
 signal register_file_read_add1_i : unsigned (3 downto 0);
@@ -111,6 +111,7 @@ signal pc_out_i : unsigned (11 downto 0);
 -- RAM SIGNALS
 signal read_instruction_low : STD_LOGIC;
 signal read_instruction_high : STD_LOGIC;
+signal memory_counter : unsigned (3 downto 0) := x"0";
 
 -- STACK SIGNALS
 signal stack_data_in_i : unsigned (11 downto 0);
@@ -141,6 +142,11 @@ signal st_load_data_i : unsigned (7 downto 0);
 signal st_data_out_i : unsigned (7 downto 0);
 signal st_nonzero_i : STD_LOGIC;
 
+-- BCD SIGNALS
+signal bcd_digit0_i : unsigned (3 downto 0);
+signal bcd_digit1_i : unsigned (3 downto 0);
+signal bcd_digit2_i : unsigned (3 downto 0);
+
 begin
 
 -- I REGISTER STUFF
@@ -157,7 +163,6 @@ i_register_data_in_i <= nnn_i when (opc_i = LD_ADDR and state_i = STORE_I_REG) e
                         ("0000" & alu_data_out_i) + i_register_data_out_i when (opc_i = ADD_I_REG and state_i = STORE_I_REG) else
                         ("0000" & alu_data_out_i) * 5 when (opc_i = LD_I_REG and state_i = STORE_I_REG) else
                          x"000";
-
 
 -- REGISTER FILE STUFF
 register_file : entity WORK.register_file port map (
@@ -289,6 +294,12 @@ ram_RE <= '1' when (state_i = FETCH_HI or state_i = FETCH_LO) else '0';
 ram_read_address <= pc_out_i when (state_i = FETCH_HI) else pc_out_i + 1 when (state_i = FETCH_LO) else x"000";  
 read_instruction_high <= '1' when (state_i = FETCH_HI and ram_read_ack = '1') else '0';
 read_instruction_low <= '1' when (state_i = FETCH_LO and ram_read_ack = '1') else '0';
+ram_WE <= '1' when (state_i = STORE_MEMORY) else '0';
+ram_write_address <= i_register_data_out_i + ("00000000" & memory_counter (1 downto 0)) when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG) else x"000";
+ram_write_data <= x"0" & bcd_digit2_i when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG and memory_counter = 0) else
+                  x"0" & bcd_digit1_i when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG and memory_counter = 1) else
+                  x"0" & bcd_digit0_i when (state_i = STORE_MEMORY and opc_i = LD_BCD_REG and memory_counter = 2) else
+                  x"00";
         
 -- STACK STUFF
 stack : entity WORK.stack port map (
@@ -365,6 +376,14 @@ st : entity WORK.timer port map (
 
 st_load_enable_i <= '1' when (opc_i = LD_SOUND) else '0';
 st_load_data_i <= register_file_data1_sync_i;
+
+-- BCD STUFF
+bcd : entity WORK.bcd port map (
+    bcd_input => register_file_data1_sync_i,
+    digit2 => bcd_digit2_i, 
+    digit1 => bcd_digit1_i,
+    digit0 => bcd_digit0_i
+);
 
 process(CLK)
 begin
@@ -447,7 +466,8 @@ begin
                             when LD_I_REG => 
                                 state_i <= STORE_I_REG;
                             when LD_BCD_REG => 
-                                state_i <= STORE_MEMORY_LOOP;
+                                memory_counter <= x"2";
+                                state_i <= STORE_MEMORY;
 --                            when LD_I_REGS => ;
 --                            when LD_REGS_I => ;
                             when others => null;
@@ -474,6 +494,17 @@ begin
                         wait_state_i <= WAIT_CLK;
                     when STORE_I_REG =>
                         state_i <= WAIT_CLK;
+                        wait_state_i <= WAIT_CLK;
+                    when STORE_MEMORY_LOOP =>
+                        memory_counter <= memory_counter - 1;
+                        state_i <= STORE_MEMORY;
+                        wait_state_i <= WAIT_CLK;
+                    when STORE_MEMORY =>
+                        if (memory_counter = 0) then
+                            state_i <= WAIT_CLK;
+                        else
+                            state_i <= STORE_MEMORY_LOOP;   
+                        end if;
                         wait_state_i <= WAIT_CLK;
                         
                     when WAIT_CYCLE =>
