@@ -215,6 +215,7 @@ register_file_write_add_i <= x_i when (opc_i = LD_BYTE and state_i = STORE_VX_RE
                              x"F" when (opc_i = SHL and state_i = STORE_CARRY_REG) else
                              x_i when (opc_i = RND and state_i = STORE_VX_REG) else
                              x_i when (opc_i = LD_TIMER and state_i = STORE_VX_REG) else
+                             memory_counter when (state_i = LOAD_MEMORY_REGS and ram_read_ack = '1') else
                              x"0";
                              
 register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else
@@ -235,8 +236,9 @@ register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i =
                               alu_data_out_i when (opc_i = SHL and state_i = STORE_VX_REG) else
                               alu_data_out_i when (opc_i = RND and state_i = STORE_VX_REG) else
                               dt_data_out_i when (opc_i = LD_TIMER and state_i = STORE_VX_REG) else
+                              ram_read_data when (state_i = LOAD_MEMORY_REGS and ram_read_ack = '1') else
                               x"00";
-register_file_WE_i <= '1' when (state_i = STORE_VX_REG or state_i = STORE_CARRY_REG) else '0';
+register_file_WE_i <= '1' when (state_i = STORE_VX_REG or state_i = STORE_CARRY_REG or (state_i = LOAD_MEMORY_REGS and ram_read_ack = '1')) else '0';
 
 
 with opc_i select register_file_read_add1_i <=
@@ -293,8 +295,12 @@ instruction_register_low  : entity WORK.register_generic generic map (SIZE => 8)
 
 instruction_i <= instruction_hi_i & instruction_lo_i;
 
-ram_RE <= '1' when (state_i = FETCH_HI or state_i = FETCH_LO) else '0';
-ram_read_address <= pc_out_i when (state_i = FETCH_HI) else pc_out_i + 1 when (state_i = FETCH_LO) else x"000";  
+ram_RE <= '1' when (state_i = FETCH_HI or state_i = FETCH_LO or state_i = LOAD_MEMORY_REGS) else
+          '0';
+ram_read_address <= pc_out_i when (state_i = FETCH_HI) else
+                    pc_out_i + 1 when (state_i = FETCH_LO) else
+                    i_register_data_out_i + ("00000000" & memory_counter) when (state_i = LOAD_MEMORY_REGS) else
+                    x"000";  
 read_instruction_high <= '1' when (state_i = FETCH_HI and ram_read_ack = '1') else '0';
 read_instruction_low <= '1' when (state_i = FETCH_LO and ram_read_ack = '1') else '0';
 ram_WE <= '1' when (state_i = STORE_MEMORY) else '0';
@@ -512,11 +518,9 @@ begin
                     when STORE_MEMORY =>
                         state_i <= STORE_MEMORY_LOOP;
                         if (memory_counter = 0) then
-                            state_i <= WAIT_CLK;
-                           
+                            state_i <= WAIT_CLK;      
                         end if;
                         wait_state_i <= WAIT_CLK;
-                    ---WORK IN PROGRESS V
                     when LOAD_MEMORY_REGS_LOOP =>
                          memory_counter <= memory_counter - 1;
                          state_i <= LOAD_MEMORY_REGS;
@@ -531,8 +535,6 @@ begin
                           state_i <= WAIT_CYCLE;
                           wait_state_i <= LOAD_MEMORY_REGS;
                         end if;
-
-                    --- WORK IN PROGRESS ^
                     when WAIT_CYCLE =>
                         state_i <= wait_state_i;
                         wait_state_i <= WAIT_CLK;

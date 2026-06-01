@@ -35,8 +35,8 @@ entity top is
     Port ( CLK, RST : in STD_LOGIC;
            --KEYPAD : in STD_LOGIC_VECTOR (15 downto 0);
            sw : STD_LOGIC_VECTOR (15 downto 0);
-           --V_SYNC, H_SYNC, SPEAKER : out STD_LOGIC;
-           --RGB : out STD_LOGIC_VECTOR (11 downto 0);
+           V_SYNC, H_SYNC: out STD_LOGIC;
+           RGB : out STD_LOGIC_VECTOR (11 downto 0);
            CAT : out STD_LOGIC_VECTOR (6 downto 0);
            AN : out STD_LOGIC_VECTOR (3 downto 0));
 end top;
@@ -67,6 +67,12 @@ signal ssd_digit1_i : unsigned (3 downto 0);
 signal ssd_digit2_i : unsigned (3 downto 0);
 signal ssd_digit3_i : unsigned (3 downto 0);
 
+-- VGA SIGNALS
+signal draw_buffer_i : STD_LOGIC;
+
+-- VRAM SIGNALS
+signal vram_addr_i : unsigned (8 downto 0);
+signal vram_data_i : unsigned (7 downto 0);
 begin
     clock_divider : entity WORK.clock_divider port map (
         clk => CLK,
@@ -121,5 +127,26 @@ begin
         sw => sw,
         address => debug_register_file_read_add_i
     );
+    
+    vega: entity WORK.vga port map (
+           CLK => CLK,
+           tick_vga => tick_vga_i,
+           H_SYNC => H_SYNC,
+           V_SYNC => V_SYNC,
+           RGB => RGB,
+           draw_buffer => draw_buffer_i,
+           vram_addr => vram_addr_i,
+           vram_data => vram_data_i
+    );
+    
+    vram: entity WORK.vram port map (
+           read_address => vram_addr_i,
+           write_address => "111111111",
+           write_data => "11111111",
+           WE => '0',
+           CLK => CLK,
+           data_out => vram_data_i
+    );
+    
 
 end Behavioral;

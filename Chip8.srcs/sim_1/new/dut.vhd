@@ -8,7 +8,8 @@ end tb_fetch;
 architecture Behavioral of tb_fetch is
 
     signal CLK               : STD_LOGIC := '0';
-    signal CE                : STD_LOGIC := '1';
+    signal tick_cpu                : STD_LOGIC := '1';
+    signal tick_timer                : STD_LOGIC := '1';
     signal RST               : STD_LOGIC := '0';
     signal ram_read_address  : unsigned (11 downto 0);
     signal ram_RE            : STD_LOGIC;
@@ -33,7 +34,8 @@ begin
 
     cpu : entity work.cpu port map (
         CLK               => CLK,
-        CE                => CE,
+        tick_cpu                => tick_cpu,
+        tick_timer                => tick_timer,
         RST               => RST,
         ram_read_address  => ram_read_address,
         ram_RE            => ram_RE,
@@ -41,7 +43,9 @@ begin
         ram_write_data    => ram_write_data,
         ram_WE            => ram_WE,
         ram_read_data     => ram_read_data,
-        ram_read_ack      => ram_read_ack
+        ram_read_ack      => ram_read_ack,
+        debug_register_file_read_add => debug_register_file_read_add,
+        debug_register_file_read_data => debug_register_file_read_data
     );
 
     -- synchronous ROM
