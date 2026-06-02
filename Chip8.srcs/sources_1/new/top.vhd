@@ -128,7 +128,7 @@ begin
         address => debug_register_file_read_add_i
     );
     
-    vega: entity WORK.vga port map (
+    vga: entity WORK.vga port map (
            CLK => CLK,
            tick_vga => tick_vga_i,
            H_SYNC => H_SYNC,

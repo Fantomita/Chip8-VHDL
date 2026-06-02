@@ -95,9 +95,10 @@ y_i <= v_counter_i - V_INACTIVE_AREA_U when (v_counter_i >= V_INACTIVE_AREA_U) e
 pixel_x_i <= x_i / 8; -- bit
 pixel_y_i <= y_i / 8; -- line
 
---vram_addr <= render_buffer & resize(pixel_x_i / 8 + pixel_y_i * 8, 8);
---vram_addr <= render_buffer & resize(shift_right(pixel_x_i, 3) + shift_left(pixel_y_i, 3), 8);
 vram_addr <= render_buffer & resize(shift_right(pixel_x_i, 3) + shift_left(pixel_y_i, 3), 8);
+
+active_video_i <= '1' when (h_counter_i >= H_INACTIVE_AREA_L and h_counter_i < (H_TOTAL_PIXELS - H_INACTIVE_AREA_R)) and
+                           (v_counter_i >= V_INACTIVE_AREA_U and v_counter_i < (V_TOTAL_PIXELS - V_INACTIVE_AREA_D)) else '0';
 
 -- byte_adress = pixel_x / 8 + pixel_y * 8
 
@@ -132,15 +133,34 @@ begin
 end if; 
 end process;
 
-active_area : process(CLK)
+--active_area : process(CLK)
+--begin
+--    if rising_edge(clK) then
+--        if tick_vga = '1' then
+--            if (h_counter_i > H_INACTIVE_AREA_L and h_counter_i < (H_TOTAL_PIXELS - H_INACTIVE_AREA_R)) and
+--               (v_counter_i > V_INACTIVE_AREA_U and v_counter_i < (V_TOTAL_PIXELS - V_INACTIVE_AREA_D)) then
+--                active_video_i <= '1';
+--            else
+--                active_video_i <= '0';
+--            end if;
+--        end if;
+--    end if;
+--end process;
+
+sync_delay : process(CLK)
 begin
-    if rising_edge(clK) then
+    if rising_edge(clk) then
         if tick_vga = '1' then
-            if (h_counter_i > H_INACTIVE_AREA_L and h_counter_i < (H_TOTAL_PIXELS - H_INACTIVE_AREA_R)) and
-               (v_counter_i > V_INACTIVE_AREA_U and v_counter_i < (V_TOTAL_PIXELS - V_INACTIVE_AREA_D)) then
-                active_video_i <= '1';
+            if h_counter_i < H_SYNC_PULSE then
+                H_SYNC <= '1';
             else
-                active_video_i <= '0';
+                H_SYNC <= '0';
+            end if;
+            
+            if v_counter_i < V_SYNC_PULSE then
+                V_SYNC <= '1';
+            else
+                V_SYNC <= '0';
             end if;
         end if;
     end if;
@@ -173,7 +193,7 @@ end process;
 --end process;
 
 draw_buffer <= not render_buffer;
-H_SYNC <= '0' when (h_counter_i < H_SYNC_PULSE) else '1';
-V_SYNC <= '0' when (v_counter_i < V_SYNC_PULSE) else '1';
+--H_SYNC <= '0' when (h_counter_i < H_SYNC_PULSE) else '1';
+--V_SYNC <= '0' when (v_counter_i < V_SYNC_PULSE) else '1';
 
 end Behavioral;
