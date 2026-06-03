@@ -33,12 +33,14 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity vram is
-    Port ( read_address : in unsigned (8 downto 0);
+    Port ( read_address_vga : in unsigned (8 downto 0);
+           read_address_gpu : in unsigned (8 downto 0);
            write_address : in unsigned (8 downto 0);
            write_data : in unsigned (7 downto 0);
            WE : in STD_LOGIC;
            CLK : in STD_LOGIC;
-           data_out : out unsigned(7 downto 0)
+           data_out_vga : out unsigned(7 downto 0);
+           data_out_gpu : out unsigned(7 downto 0)
            );
 end vram;
 
@@ -47,7 +49,7 @@ architecture Behavioral of vram is
 type vram_type is array(0 to 511) of unsigned(7 downto 0);
 
 signal vram_data : vram_type := (
-    others => x"AA"
+    others => x"00"
 );
 begin
 
@@ -60,6 +62,7 @@ begin
     end if;
 end process;
 
-data_out <= vram_data(to_integer(read_address));
+data_out_vga <= vram_data(to_integer(read_address_vga));
+data_out_gpu <= vram_data(to_integer(read_address_gpu));
 
 end Behavioral;

@@ -68,7 +68,7 @@ begin
         
         -- Address Math
         when JP_REG             => alu_op <= PASS_B;
-        when ADD_I_REG          => alu_op <= PASS_A; -- I + Vx
+       -- when ADD_I_REG          => alu_op <= PASS_A; -- I + Vx
         
         
         -- Others (Pass through)

@@ -50,6 +50,8 @@ signal h_counter_i : unsigned (15 downto 0) := (others => '0');
 signal v_counter_en_i : STD_LOGIC := '0';
 signal active_video_i : STD_LOGIC := '0';
 
+-- SCALING FACTOR
+constant SCALE_FACTOR : integer := 10;
 
 -- HORIZONTAL Constants
 constant H_FRONT_PORCH : integer := 16;
@@ -57,9 +59,10 @@ constant H_SYNC_PULSE : integer := 96;
 constant H_BACK_PORCH : integer := 48;
 constant H_ACTIVE_VIDEO : integer := 640;
 constant H_TOTAL_PIXELS : integer := 800;
-constant H_PADDING : integer := 64;
-constant H_INACTIVE_AREA_L : integer := 208;
-constant H_INACTIVE_AREA_R : integer := 80;
+constant H_CHIP8_ACTIVE : integer := 64 * SCALE_FACTOR;
+constant H_PADDING : integer := (H_ACTIVE_VIDEO - H_CHIP8_ACTIVE) / 2;
+constant H_INACTIVE_AREA_L : integer := H_SYNC_PULSE + H_BACK_PORCH + H_PADDING;
+constant H_INACTIVE_AREA_R : integer := H_FRONT_PORCH + H_PADDING;
 
 -- VERTICAL Constants
 constant V_FRONT_PORCH : integer := 10;
@@ -67,9 +70,15 @@ constant V_SYNC_PULSE : integer := 2;
 constant V_BACK_PORCH : integer := 33;
 constant V_ACTIVE_VIDEO : integer := 480;
 constant V_TOTAL_PIXELS : integer := 524;
-constant V_PADDING : integer := 112;
-constant V_INACTIVE_AREA_U : integer := 147;
-constant V_INACTIVE_AREA_D : integer := 122;
+constant V_CHIP8_ACTIVE : integer := 32 * SCALE_FACTOR;
+constant V_PADDING : integer := (V_ACTIVE_VIDEO - V_CHIP8_ACTIVE) / 2;
+constant V_INACTIVE_AREA_U : integer := V_SYNC_PULSE + V_BACK_PORCH + V_PADDING;
+constant V_INACTIVE_AREA_D : integer := V_FRONT_PORCH + V_PADDING;
+
+constant H_VGA_START : integer := H_SYNC_PULSE + H_BACK_PORCH;
+constant H_VGA_END   : integer := H_VGA_START + H_ACTIVE_VIDEO;
+constant V_VGA_START : integer := V_SYNC_PULSE + V_BACK_PORCH;
+constant V_VGA_END   : integer := V_VGA_START + V_ACTIVE_VIDEO;
 
 
 signal x_i : unsigned (15 downto 0);
@@ -92,8 +101,8 @@ begin
 x_i <= h_counter_i - H_INACTIVE_AREA_L when (h_counter_i >= H_INACTIVE_AREA_L) else (others => '0');
 y_i <= v_counter_i - V_INACTIVE_AREA_U when (v_counter_i >= V_INACTIVE_AREA_U) else (others => '0');
 
-pixel_x_i <= x_i / 8; -- bit
-pixel_y_i <= y_i / 8; -- line
+pixel_x_i <= x_i / SCALE_FACTOR; -- bit
+pixel_y_i <= y_i / SCALE_FACTOR; -- line
 
 vram_addr <= render_buffer & resize(shift_right(pixel_x_i, 3) + shift_left(pixel_y_i, 3), 8);
 
@@ -127,6 +136,7 @@ begin
                     v_counter_i <= v_counter_i + 1;
                 else
                     v_counter_i <= (others => '0');
+                    render_buffer <= not render_buffer;
                 end if;
             end if;
         end if;
@@ -143,7 +153,7 @@ end process;
 --            else
 --                active_video_i <= '0';
 --            end if;
---        end if;
+--        if end if;
 --    end if;
 --end process;
 
@@ -152,15 +162,16 @@ begin
     if rising_edge(clk) then
         if tick_vga = '1' then
             if h_counter_i < H_SYNC_PULSE then
-                H_SYNC <= '1';
-            else
                 H_SYNC <= '0';
+            else
+                H_SYNC <= '1';
             end if;
             
             if v_counter_i < V_SYNC_PULSE then
-                V_SYNC <= '1';
-            else
                 V_SYNC <= '0';
+
+            else
+                V_SYNC <= '1';
             end if;
         end if;
     end if;
@@ -171,11 +182,16 @@ draw : process(CLK)
 begin
     if rising_edge(clk) then
         if tick_vga = '1' then
-            if active_video_i = '1' then
-                if vram_data(7 - (to_integer(pixel_x_i) mod 8)) = '1' then
-                    RGB <= x"FFF";
-                else
-                    RGB <= x"000";
+            if (h_counter_i >= H_VGA_START and h_counter_i < H_VGA_END) and
+               (v_counter_i >= V_VGA_START and v_counter_i < V_VGA_END) then
+                if active_video_i = '1' then
+                    if vram_data(7 - (to_integer(pixel_x_i) mod 8)) = '1' then
+                        RGB <= x"FFF";
+                    else
+                        RGB <= x"000";
+                    end if;
+                else 
+                    RGB <= x"0F0";
                 end if;
             else
                 RGB <= x"000";

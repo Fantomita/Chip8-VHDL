@@ -3,41 +3,530 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="bcd_behav.wdb" id="1">
+      <db_ref path="top_behav.wdb" id="1">
          <top_modules>
-            <top_module name="bcd" />
+            <top_module name="common" />
+            <top_module name="top" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="77.504 ns"></ZoomEndTime>
-      <Cursor1Time time="0.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="8.030000001 ms"></ZoomEndTime>
+      <Cursor1Time time="0.001000000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="173"></NameColumnWidth>
-      <ValueColumnWidth column_width="64"></ValueColumnWidth>
+      <NameColumnWidth column_width="161"></NameColumnWidth>
+      <ValueColumnWidth column_width="60"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="5" />
-   <wvobject type="array" fp_name="/bcd/bcd_input">
-      <obj_property name="ElementShortName">bcd_input[7:0]</obj_property>
-      <obj_property name="ObjectShortName">bcd_input[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/bcd/digit2">
-      <obj_property name="ElementShortName">digit2[3:0]</obj_property>
-      <obj_property name="ObjectShortName">digit2[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/bcd/digit1">
-      <obj_property name="ElementShortName">digit1[3:0]</obj_property>
-      <obj_property name="ObjectShortName">digit1[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/bcd/digit0">
-      <obj_property name="ElementShortName">digit0[3:0]</obj_property>
-      <obj_property name="ObjectShortName">digit0[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/bcd/result">
-      <obj_property name="ElementShortName">result[11:0]</obj_property>
-      <obj_property name="ObjectShortName">result[11:0]</obj_property>
+   <WVObjectSize size="126" />
+   <wvobject type="array" fp_name="/top/cpu/register_file/V">
+      <obj_property name="ElementShortName">V[0:15][7:0]</obj_property>
+      <obj_property name="ObjectShortName">V[0:15][7:0]</obj_property>
       <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/CLK">
+      <obj_property name="ElementShortName">CLK</obj_property>
+      <obj_property name="ObjectShortName">CLK</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/RST">
+      <obj_property name="ElementShortName">RST</obj_property>
+      <obj_property name="ObjectShortName">RST</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/tick_cpu">
+      <obj_property name="ElementShortName">tick_cpu</obj_property>
+      <obj_property name="ObjectShortName">tick_cpu</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/tick_timer">
+      <obj_property name="ElementShortName">tick_timer</obj_property>
+      <obj_property name="ObjectShortName">tick_timer</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/ram_read_address">
+      <obj_property name="ElementShortName">ram_read_address[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_read_address[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/ram_RE">
+      <obj_property name="ElementShortName">ram_RE</obj_property>
+      <obj_property name="ObjectShortName">ram_RE</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/ram_write_address">
+      <obj_property name="ElementShortName">ram_write_address[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_write_address[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/ram_write_data">
+      <obj_property name="ElementShortName">ram_write_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_write_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/ram_WE">
+      <obj_property name="ElementShortName">ram_WE</obj_property>
+      <obj_property name="ObjectShortName">ram_WE</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/ram_read_data">
+      <obj_property name="ElementShortName">ram_read_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_read_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/ram_read_ack">
+      <obj_property name="ElementShortName">ram_read_ack</obj_property>
+      <obj_property name="ObjectShortName">ram_read_ack</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/debug_register_file_read_add">
+      <obj_property name="ElementShortName">debug_register_file_read_add[3:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_register_file_read_add[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/debug_register_file_read_data">
+      <obj_property name="ElementShortName">debug_register_file_read_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_register_file_read_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/gpu_command_ack">
+      <obj_property name="ElementShortName">gpu_command_ack</obj_property>
+      <obj_property name="ObjectShortName">gpu_command_ack</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/cpu/gpu_command">
+      <obj_property name="ElementShortName">gpu_command</obj_property>
+      <obj_property name="ObjectShortName">gpu_command</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/gpu_ready">
+      <obj_property name="ElementShortName">gpu_ready</obj_property>
+      <obj_property name="ObjectShortName">gpu_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/gpu_draw_x">
+      <obj_property name="ElementShortName">gpu_draw_x[5:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_x[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/gpu_draw_y">
+      <obj_property name="ElementShortName">gpu_draw_y[4:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_y[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/gpu_draw_n">
+      <obj_property name="ElementShortName">gpu_draw_n[3:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_n[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/gpu_draw_offset">
+      <obj_property name="ElementShortName">gpu_draw_offset[11:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_offset[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/gpu_collision">
+      <obj_property name="ElementShortName">gpu_collision</obj_property>
+      <obj_property name="ObjectShortName">gpu_collision</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/cpu/state_i">
+      <obj_property name="ElementShortName">state_i</obj_property>
+      <obj_property name="ObjectShortName">state_i</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/cpu/wait_state_i">
+      <obj_property name="ElementShortName">wait_state_i</obj_property>
+      <obj_property name="ObjectShortName">wait_state_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/i_register_enable_i">
+      <obj_property name="ElementShortName">i_register_enable_i</obj_property>
+      <obj_property name="ObjectShortName">i_register_enable_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/i_register_data_in_i">
+      <obj_property name="ElementShortName">i_register_data_in_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">i_register_data_in_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/i_register_data_out_i">
+      <obj_property name="ElementShortName">i_register_data_out_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">i_register_data_out_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_read_add1_i">
+      <obj_property name="ElementShortName">register_file_read_add1_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_read_add1_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_read_add2_i">
+      <obj_property name="ElementShortName">register_file_read_add2_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_read_add2_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_write_add_i">
+      <obj_property name="ElementShortName">register_file_write_add_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_write_add_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_write_data_i">
+      <obj_property name="ElementShortName">register_file_write_data_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_write_data_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/register_file_WE_i">
+      <obj_property name="ElementShortName">register_file_WE_i</obj_property>
+      <obj_property name="ObjectShortName">register_file_WE_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_data1_i">
+      <obj_property name="ElementShortName">register_file_data1_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_data1_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_data2_i">
+      <obj_property name="ElementShortName">register_file_data2_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_data2_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_data1_sync_i">
+      <obj_property name="ElementShortName">register_file_data1_sync_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_data1_sync_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/register_file_data2_sync_i">
+      <obj_property name="ElementShortName">register_file_data2_sync_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">register_file_data2_sync_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/instruction_i">
+      <obj_property name="ElementShortName">instruction_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction_i[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/instruction_lo_i">
+      <obj_property name="ElementShortName">instruction_lo_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction_lo_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/instruction_hi_i">
+      <obj_property name="ElementShortName">instruction_hi_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction_hi_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/x_i">
+      <obj_property name="ElementShortName">x_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">x_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/y_i">
+      <obj_property name="ElementShortName">y_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">y_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/nnn_i">
+      <obj_property name="ElementShortName">nnn_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">nnn_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/kk_i">
+      <obj_property name="ElementShortName">kk_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">kk_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/n_i">
+      <obj_property name="ElementShortName">n_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">n_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/cpu/opc_i">
+      <obj_property name="ElementShortName">opc_i</obj_property>
+      <obj_property name="ObjectShortName">opc_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/inc_pc_i">
+      <obj_property name="ElementShortName">inc_pc_i</obj_property>
+      <obj_property name="ObjectShortName">inc_pc_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/load_pc_i">
+      <obj_property name="ElementShortName">load_pc_i</obj_property>
+      <obj_property name="ObjectShortName">load_pc_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/load_pc_data_i">
+      <obj_property name="ElementShortName">load_pc_data_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">load_pc_data_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/pc_out_i">
+      <obj_property name="ElementShortName">pc_out_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">pc_out_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/read_instruction_low">
+      <obj_property name="ElementShortName">read_instruction_low</obj_property>
+      <obj_property name="ObjectShortName">read_instruction_low</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/read_instruction_high">
+      <obj_property name="ElementShortName">read_instruction_high</obj_property>
+      <obj_property name="ObjectShortName">read_instruction_high</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/memory_counter">
+      <obj_property name="ElementShortName">memory_counter[3:0]</obj_property>
+      <obj_property name="ObjectShortName">memory_counter[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/stack_data_in_i">
+      <obj_property name="ElementShortName">stack_data_in_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">stack_data_in_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/stack_data_out_i">
+      <obj_property name="ElementShortName">stack_data_out_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">stack_data_out_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/stack_EN_i">
+      <obj_property name="ElementShortName">stack_EN_i</obj_property>
+      <obj_property name="ObjectShortName">stack_EN_i</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/cpu/stack_op_i">
+      <obj_property name="ElementShortName">stack_op_i</obj_property>
+      <obj_property name="ObjectShortName">stack_op_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/alu_data_a_i">
+      <obj_property name="ElementShortName">alu_data_a_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_data_a_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/alu_data_b_i">
+      <obj_property name="ElementShortName">alu_data_b_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_data_b_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/alu_carry_i">
+      <obj_property name="ElementShortName">alu_carry_i</obj_property>
+      <obj_property name="ObjectShortName">alu_carry_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/alu_data_out_i">
+      <obj_property name="ElementShortName">alu_data_out_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_data_out_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/alu_zf_i">
+      <obj_property name="ElementShortName">alu_zf_i</obj_property>
+      <obj_property name="ObjectShortName">alu_zf_i</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/cpu/alu_op_i">
+      <obj_property name="ElementShortName">alu_op_i</obj_property>
+      <obj_property name="ObjectShortName">alu_op_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/rng_data_i">
+      <obj_property name="ElementShortName">rng_data_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rng_data_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/dt_load_enable_i">
+      <obj_property name="ElementShortName">dt_load_enable_i</obj_property>
+      <obj_property name="ObjectShortName">dt_load_enable_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/dt_load_data_i">
+      <obj_property name="ElementShortName">dt_load_data_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dt_load_data_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/dt_data_out_i">
+      <obj_property name="ElementShortName">dt_data_out_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dt_data_out_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/dt_nonzero_i">
+      <obj_property name="ElementShortName">dt_nonzero_i</obj_property>
+      <obj_property name="ObjectShortName">dt_nonzero_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/st_load_enable_i">
+      <obj_property name="ElementShortName">st_load_enable_i</obj_property>
+      <obj_property name="ObjectShortName">st_load_enable_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/st_load_data_i">
+      <obj_property name="ElementShortName">st_load_data_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">st_load_data_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/st_data_out_i">
+      <obj_property name="ElementShortName">st_data_out_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">st_data_out_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/st_nonzero_i">
+      <obj_property name="ElementShortName">st_nonzero_i</obj_property>
+      <obj_property name="ObjectShortName">st_nonzero_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/bcd_digit0_i">
+      <obj_property name="ElementShortName">bcd_digit0_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_digit0_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/bcd_digit1_i">
+      <obj_property name="ElementShortName">bcd_digit1_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_digit1_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/bcd_digit2_i">
+      <obj_property name="ElementShortName">bcd_digit2_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_digit2_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/CLK">
+      <obj_property name="ElementShortName">CLK</obj_property>
+      <obj_property name="ObjectShortName">CLK</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/RST">
+      <obj_property name="ElementShortName">RST</obj_property>
+      <obj_property name="ObjectShortName">RST</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/gpu_command_ack">
+      <obj_property name="ElementShortName">gpu_command_ack</obj_property>
+      <obj_property name="ObjectShortName">gpu_command_ack</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/gpu/gpu_command">
+      <obj_property name="ElementShortName">gpu_command</obj_property>
+      <obj_property name="ObjectShortName">gpu_command</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/gpu_ready">
+      <obj_property name="ElementShortName">gpu_ready</obj_property>
+      <obj_property name="ObjectShortName">gpu_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/gpu_draw_x">
+      <obj_property name="ElementShortName">gpu_draw_x[5:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_x[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/gpu_draw_y">
+      <obj_property name="ElementShortName">gpu_draw_y[4:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_y[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/gpu_draw_n">
+      <obj_property name="ElementShortName">gpu_draw_n[3:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_n[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/gpu_draw_offset">
+      <obj_property name="ElementShortName">gpu_draw_offset[11:0]</obj_property>
+      <obj_property name="ObjectShortName">gpu_draw_offset[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/gpu_collision">
+      <obj_property name="ElementShortName">gpu_collision</obj_property>
+      <obj_property name="ObjectShortName">gpu_collision</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/ram_RE">
+      <obj_property name="ElementShortName">ram_RE</obj_property>
+      <obj_property name="ObjectShortName">ram_RE</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/ram_read_address">
+      <obj_property name="ElementShortName">ram_read_address[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_read_address[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/ram_read_data">
+      <obj_property name="ElementShortName">ram_read_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_read_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/ram_read_ack">
+      <obj_property name="ElementShortName">ram_read_ack</obj_property>
+      <obj_property name="ObjectShortName">ram_read_ack</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/vram_read_address">
+      <obj_property name="ElementShortName">vram_read_address[8:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_read_address[8:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/vram_read_data">
+      <obj_property name="ElementShortName">vram_read_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_read_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/vram_write_address">
+      <obj_property name="ElementShortName">vram_write_address[8:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_write_address[8:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/vram_write_data">
+      <obj_property name="ElementShortName">vram_write_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_write_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/vram_WE">
+      <obj_property name="ElementShortName">vram_WE</obj_property>
+      <obj_property name="ObjectShortName">vram_WE</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/draw_buffer">
+      <obj_property name="ElementShortName">draw_buffer</obj_property>
+      <obj_property name="ObjectShortName">draw_buffer</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/vga_V_SYNC">
+      <obj_property name="ElementShortName">vga_V_SYNC</obj_property>
+      <obj_property name="ObjectShortName">vga_V_SYNC</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/gpu/state_i">
+      <obj_property name="ElementShortName">state_i</obj_property>
+      <obj_property name="ObjectShortName">state_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/clear_counter_i">
+      <obj_property name="ElementShortName">clear_counter_i[8:0]</obj_property>
+      <obj_property name="ObjectShortName">clear_counter_i[8:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/copy_counter_i">
+      <obj_property name="ElementShortName">copy_counter_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">copy_counter_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/row_counter_i">
+      <obj_property name="ElementShortName">row_counter_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">row_counter_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/col_counter_i">
+      <obj_property name="ElementShortName">col_counter_i[2:0]</obj_property>
+      <obj_property name="ObjectShortName">col_counter_i[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/sprite_byte_i">
+      <obj_property name="ElementShortName">sprite_byte_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_byte_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/byte_in_vram_i">
+      <obj_property name="ElementShortName">byte_in_vram_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">byte_in_vram_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/bit_in_byte_i">
+      <obj_property name="ElementShortName">bit_in_byte_i[2:0]</obj_property>
+      <obj_property name="ObjectShortName">bit_in_byte_i[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/x_i">
+      <obj_property name="ElementShortName">x_i[5:0]</obj_property>
+      <obj_property name="ObjectShortName">x_i[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/y_i">
+      <obj_property name="ElementShortName">y_i[4:0]</obj_property>
+      <obj_property name="ObjectShortName">y_i[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/sprite_current_bit_i">
+      <obj_property name="ElementShortName">sprite_current_bit_i</obj_property>
+      <obj_property name="ObjectShortName">sprite_current_bit_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/gpu/vram_write_data_i">
+      <obj_property name="ElementShortName">vram_write_data_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_write_data_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/gpu/prev_rst">
+      <obj_property name="ElementShortName">prev_rst</obj_property>
+      <obj_property name="ObjectShortName">prev_rst</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/vram/read_address_vga">
+      <obj_property name="ElementShortName">read_address_vga[8:0]</obj_property>
+      <obj_property name="ObjectShortName">read_address_vga[8:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/vram/read_address_gpu">
+      <obj_property name="ElementShortName">read_address_gpu[8:0]</obj_property>
+      <obj_property name="ObjectShortName">read_address_gpu[8:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/vram/write_address">
+      <obj_property name="ElementShortName">write_address[8:0]</obj_property>
+      <obj_property name="ObjectShortName">write_address[8:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/vram/write_data">
+      <obj_property name="ElementShortName">write_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">write_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/vram/WE">
+      <obj_property name="ElementShortName">WE</obj_property>
+      <obj_property name="ObjectShortName">WE</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/vram/CLK">
+      <obj_property name="ElementShortName">CLK</obj_property>
+      <obj_property name="ObjectShortName">CLK</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/vram/data_out_vga">
+      <obj_property name="ElementShortName">data_out_vga[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out_vga[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/vram/data_out_gpu">
+      <obj_property name="ElementShortName">data_out_gpu[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out_gpu[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/vram/vram_data">
+      <obj_property name="ElementShortName">vram_data[0:511][7:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_data[0:511][7:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/stack/CLK">
+      <obj_property name="ElementShortName">CLK</obj_property>
+      <obj_property name="ObjectShortName">CLK</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/stack/RST">
+      <obj_property name="ElementShortName">RST</obj_property>
+      <obj_property name="ObjectShortName">RST</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top/cpu/stack/EN">
+      <obj_property name="ElementShortName">EN</obj_property>
+      <obj_property name="ObjectShortName">EN</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/top/cpu/stack/op">
+      <obj_property name="ElementShortName">op</obj_property>
+      <obj_property name="ObjectShortName">op</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/stack/data_in">
+      <obj_property name="ElementShortName">data_in[11:0]</obj_property>
+      <obj_property name="ObjectShortName">data_in[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/stack/data_out">
+      <obj_property name="ElementShortName">data_out[11:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/stack/memory">
+      <obj_property name="ElementShortName">memory[0:15][11:0]</obj_property>
+      <obj_property name="ObjectShortName">memory[0:15][11:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/stack/stack_pointer">
+      <obj_property name="ElementShortName">stack_pointer[3:0]</obj_property>
+      <obj_property name="ObjectShortName">stack_pointer[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top/cpu/stack/data_out_i">
+      <obj_property name="ElementShortName">data_out_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out_i[11:0]</obj_property>
    </wvobject>
 </wave_config>

@@ -89,6 +89,11 @@ type StackOp is (
     POP	
 );
 
+type GpuCommands is (
+    CLEAR_SCREEN,
+    DRAW_SCREEN
+);
+
 end package common;
 
 package body common is
