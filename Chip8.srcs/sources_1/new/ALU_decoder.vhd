@@ -67,7 +67,7 @@ begin
         when RND                => alu_op <= AND_OP; -- Random byte AND kk
         
         -- Address Math
-        when JP_REG             => alu_op <= PASS_B;
+        --when JP_REG             => alu_op <= PASS_B;
        -- when ADD_I_REG          => alu_op <= PASS_A; -- I + Vx
         
         

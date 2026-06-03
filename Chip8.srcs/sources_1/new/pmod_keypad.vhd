@@ -43,11 +43,24 @@ begin
         if (rising_edge(clk)) then
             if ce = '1' then
                 case counter_i is
-                    when "00" => col_i <= "0111";x0_i <= row;
-                    when "01" => col_i <= "1011";x1_i <= row;
-                    when "10" => col_i <= "1101";x2_i <= row;
-                    when "11" => col_i <= "1110";x3_i <= row;
-                    when others => col_i <= "1111";x0_i <= x"F"; x1_i <= x"F"; x2_i <= x"F"; x3_i <= x"F";
+                    when "00" => 
+                        col_i <= "0111";
+                        x3_i <= row;
+                    when "01" => 
+                        col_i <= "1011";
+                        x0_i <= row;
+                    when "10" => 
+                        col_i <= "1101";
+                        x1_i <= row;
+                    when "11" => 
+                        col_i <= "1110";
+                        x2_i <= row;
+                    when others => 
+                        col_i <= "1111";
+                        x0_i <= x"F"; 
+                        x1_i <= x"F"; 
+                        x2_i <= x"F"; 
+                        x3_i <= x"F";
                 end case;
             end if;
         end if;

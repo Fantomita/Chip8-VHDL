@@ -51,7 +51,7 @@ signal v_counter_en_i : STD_LOGIC := '0';
 signal active_video_i : STD_LOGIC := '0';
 
 -- SCALING FACTOR
-constant SCALE_FACTOR : integer := 10;
+constant SCALE_FACTOR : integer := 8;
 
 -- HORIZONTAL Constants
 constant H_FRONT_PORCH : integer := 16;

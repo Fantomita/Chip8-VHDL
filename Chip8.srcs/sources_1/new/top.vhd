@@ -37,7 +37,8 @@ use WORK.common.ALL;
 
 entity top is
     Port ( CLK, RST : in STD_LOGIC;
-           --KEYPAD : in STD_LOGIC_VECTOR (15 downto 0);
+           row : in STD_LOGIC_VECTOR (0 to 3);
+           col : out STD_LOGIC_VECTOR (0 to 3);
            sw : in STD_LOGIC_VECTOR (15 downto 0);
            V_SYNC, H_SYNC: out STD_LOGIC;
            RGB : out STD_LOGIC_VECTOR (11 downto 0);
@@ -89,8 +90,7 @@ signal vram_write_address_i : unsigned (8 downto 0);
 signal vram_write_data_i : unsigned (7 downto 0);
 signal vram_WE_i : STD_LOGIC;
 
--- GPU SIGNAL
-
+-- GPU SIGNALS
 signal gpu_command_ack_i : STD_LOGIC;
 signal gpu_command_i : GpuCommands;
 signal gpu_ready_i :  STD_LOGIC;
@@ -99,6 +99,10 @@ signal gpu_draw_y_i: unsigned(4 downto 0);
 signal gpu_draw_n_i: unsigned(3 downto 0);
 signal gpu_draw_offset_i: unsigned(11 downto 0);
 signal gpu_collision_i : STD_LOGIC;
+
+-- KEYPAD SIGNALS
+signal keypad_key_i : unsigned (3 downto 0);
+signal keypad_valid_i : STD_LOGIC;
 
 begin
     clock_divider : entity WORK.clock_divider port map (
@@ -144,7 +148,9 @@ begin
         gpu_draw_y => gpu_draw_y_i,
         gpu_draw_n => gpu_draw_n_i,
         gpu_draw_offset => gpu_draw_offset_i,
-        gpu_collision => gpu_collision_i
+        gpu_collision => gpu_collision_i,
+        keypad_key => keypad_key_i,
+        keypad_valid => keypad_valid_i
     );
     
     gpu : entity WORK.gpu port map (
@@ -210,6 +216,14 @@ begin
         CLK              => CLK,
         data_out_vga     => vram_data_vga_i,
         data_out_gpu     => vram_data_gpu_i
+    );
+    
+    keypad : entity WORK.key_encoder port map (
+        CLK => CLK,
+        row => row,
+        col => col,
+        hex_data => keypad_key_i,
+        valid => keypad_valid_i
     );
     
     H_SYNC <= H_SYNC_i;

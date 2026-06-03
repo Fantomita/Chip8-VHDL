@@ -57,7 +57,11 @@ entity cpu is
            gpu_draw_y: out unsigned(4 downto 0);
            gpu_draw_n: out unsigned(3 downto 0);
            gpu_draw_offset: out unsigned(11 downto 0);
-           gpu_collision : in STD_LOGIC);
+           gpu_collision : in STD_LOGIC;
+           -- Keypad Signals
+           keypad_key : in unsigned (3 downto 0);
+           keypad_valid : in STD_LOGIC
+           );
 end cpu;
 
 architecture Behavioral of cpu is
@@ -84,7 +88,8 @@ type CPU_STATE is (
     STORE_MEMORY_LOOP,
     STORE_MEMORY,
     LOAD_MEMORY_REGS,
-    LOAD_MEMORY_REGS_LOOP
+    LOAD_MEMORY_REGS_LOOP,
+    HALT_UNTIL_PRESS
 );
 
 signal state_i : CPU_STATE := WAIT_CLK;
@@ -162,6 +167,9 @@ signal bcd_digit0_i : unsigned (3 downto 0);
 signal bcd_digit1_i : unsigned (3 downto 0);
 signal bcd_digit2_i : unsigned (3 downto 0);
 
+-- KEYPAD SIGNALS
+signal keypad_key_i : unsigned (3 downto 0) := "0000";
+
 begin
 
 -- I REGISTER STUFF
@@ -229,7 +237,8 @@ register_file_write_add_i <= x_i when (opc_i = LD_BYTE and state_i = STORE_VX_RE
                              x_i when (opc_i = RND and state_i = STORE_VX_REG) else
                              x_i when (opc_i = LD_TIMER and state_i = STORE_VX_REG) else
                              memory_counter when (state_i = LOAD_MEMORY_REGS and ram_read_ack = '1') else
-                              x"F" when (opc_i = DRW and state_i = STORE_CARRY_REG) else
+                             x"F" when (opc_i = DRW and state_i = STORE_CARRY_REG) else
+                             x_i when (opc_i = LD_KEY and state_i = STORE_VX_REG) else
                              x"0";
                              
 register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i = STORE_VX_REG) else
@@ -252,6 +261,7 @@ register_file_write_data_i <= alu_data_out_i when (opc_i = LD_BYTE and state_i =
                               dt_data_out_i when (opc_i = LD_TIMER and state_i = STORE_VX_REG) else
                               ram_read_data when (state_i = LOAD_MEMORY_REGS and ram_read_ack = '1') else
                               "0000000" & gpu_collision when (opc_i = DRW and state_i = STORE_CARRY_REG) else
+                              "0000" & keypad_key_i when (opc_i = LD_KEY and state_i = STORE_VX_REG) else
                               x"00";
 register_file_WE_i <= '1' when (state_i = STORE_VX_REG or state_i = STORE_CARRY_REG or (state_i = LOAD_MEMORY_REGS and ram_read_ack = '1')) else '0';
 
@@ -289,7 +299,7 @@ pc_reg : entity WORK.program_counter port map (
 
 inc_pc_i <= '1' when (state_i = INCREMENT_PC  or state_i = SKIP_INSTRUCTION) else '0';
 load_pc_i <= '1' when (state_i = JUMP_ADDRESS or state_i = JUMP_RELATIVE) else '0';
-load_pc_data_i <= nnn_i when (state_i = JUMP_ADDRESS and (opc_i = JP_ADDR or opc_i = CALL_ADDR)) else stack_data_out_i when (state_i = JUMP_ADDRESS and opc_i = RET) else (nnn_i + ("0000" & alu_data_out_i)) when (state_i = JUMP_RELATIVE) else x"200";
+load_pc_data_i <= nnn_i when (state_i = JUMP_ADDRESS and (opc_i = JP_ADDR or opc_i = CALL_ADDR)) else stack_data_out_i when (state_i = JUMP_ADDRESS and opc_i = RET) else (nnn_i + ("0000" & register_file_data2_sync_i)) when (state_i = JUMP_RELATIVE) else x"200";
         
 -- RAM STUFF
 instruction_register_high : entity WORK.register_generic generic map (SIZE => 8) port map (
@@ -367,6 +377,8 @@ with opc_i select alu_data_b_i <=
     kk_i when LD_BYTE,
     kk_i when ADD_BYTE,
     kk_i when RND,
+    "0000" & keypad_key_i when SKP_KEY,
+    "0000" & keypad_key_i when SKNP_KEY,
     register_file_data2_sync_i when others;
 
 -- RNG STUFF
@@ -491,11 +503,14 @@ begin
                                 state_i <= STORE_VX_REG;
                             when DRW => 
                                 state_i <= GPU_DRAW;
---                            when SKP_KEY => ;
---                            when SKNP_KEY => ;
+                            when SKP_KEY => 
+                                state_i <= HALT_UNTIL_PRESS;
+                            when SKNP_KEY =>
+                                state_i <= HALT_UNTIL_PRESS;
                             when LD_TIMER => 
                                 state_i <= STORE_VX_REG;
---                            when LD_KEY => ;
+                            when LD_KEY => 
+                                state_i <= HALT_UNTIL_PRESS;
                             when LD_DELAY => 
                                 null;
                             when LD_SOUND => 
@@ -525,10 +540,10 @@ begin
                         state_i <= JUMP_ADDRESS;
                     when CHECK_ZERO =>
                         state_i <= WAIT_CLK;
-                        if (alu_ZF_i = '1' and (opc_i = SE_BYTE or opc_i = SE_REG)) then
+                        if (alu_ZF_i = '1' and (opc_i = SE_BYTE or opc_i = SE_REG or opc_i = SKP_KEY)) then
                             state_i <= SKIP_INSTRUCTION;
                         end if;
-                        if (alu_ZF_i = '0' and (opc_i = SNE_BYTE or opc_i = SNE_REG)) then
+                        if (alu_ZF_i = '0' and (opc_i = SNE_BYTE or opc_i = SNE_REG or opc_i = SKNP_KEY)) then
                             state_i <= SKIP_INSTRUCTION;
                         end if;
                     when SKIP_INSTRUCTION =>
@@ -566,6 +581,15 @@ begin
                             state_i <= LOAD_MEMORY_REGS_LOOP;
                             if(memory_counter = 0) then
                                 state_i <= WAIT_CLK; 
+                            end if;
+                        end if;
+                    when HALT_UNTIL_PRESS =>
+                        if (keypad_valid = '1') then
+                            keypad_key_i <= keypad_key;
+                            if (opc_i = LD_KEY) then
+                                state_i <= STORE_VX_REG;
+                            elsif (opc_i = SKP_KEY) then
+                                state_i <= CHECK_ZERO;
                             end if;
                         end if;
                     when GPU_CLEAR =>
