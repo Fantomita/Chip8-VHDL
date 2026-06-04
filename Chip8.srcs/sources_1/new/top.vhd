@@ -113,6 +113,7 @@ begin
     );
     
     ram : entity WORK.ram port map (
+        rom_selection     => unsigned(sw(7 downto 5)),
         cpu_read_address  => ram_read_address_i,
         cpu_RE            => ram_RE_i,
         cpu_write_address => ram_write_address_i,
@@ -139,7 +140,7 @@ begin
         ram_WE => ram_WE_i,
         ram_read_data => ram_data_out_i,
         ram_read_ack => ram_read_ack_i,
-        debug_register_file_read_add => debug_register_file_read_add_i,
+        debug_register_file_read_add => unsigned(sw(4 downto 1)),
         debug_register_file_read_data => debug_register_file_read_data_i,
         gpu_command_ack =>gpu_command_ack_i,
         gpu_command => gpu_command_i,
@@ -192,10 +193,10 @@ begin
     ssd_digit2_i <= x"0";
     ssd_digit3_i <= x"0";
     
-    switch_decoder : entity WORK.switch_decoder port map (
-        sw => sw,
-        address => debug_register_file_read_add_i
-    );
+--    switch_decoder : entity WORK.switch_decoder port map (
+--        sw => sw,
+--        address => debug_register_file_read_add_i
+--    );
     
     vga: entity WORK.vga port map (
            CLK => CLK,
