@@ -377,8 +377,6 @@ with opc_i select alu_data_b_i <=
     kk_i when LD_BYTE,
     kk_i when ADD_BYTE,
     kk_i when RND,
-    "0000" & keypad_key_i when SKP_KEY,
-    "0000" & keypad_key_i when SKNP_KEY,
     register_file_data2_sync_i when others;
 
 -- RNG STUFF
@@ -432,6 +430,15 @@ gpu_draw_x <= register_file_data1_sync_i(5 downto 0);
 gpu_draw_y <= register_file_data2_sync_i(4 downto 0);
 gpu_draw_n <= n_i;
 gpu_draw_offset <= i_register_data_out_i;
+
+process(CLK)
+begin
+    if rising_edge(CLK) then
+        if (keypad_valid = '1') then   
+            keypad_key_i <= keypad_key;
+        end if;
+    end if;
+end process;
 
 process(CLK)
 begin
@@ -504,9 +511,13 @@ begin
                             when DRW => 
                                 state_i <= GPU_DRAW;
                             when SKP_KEY => 
-                                state_i <= HALT_UNTIL_PRESS;
+                                if (keypad_key_i = register_file_data1_sync_i and keypad_valid = '1') then
+                                    state_i <= SKIP_INSTRUCTION;
+                                 end if;
                             when SKNP_KEY =>
-                                state_i <= HALT_UNTIL_PRESS;
+                                if (not(keypad_key_i = register_file_data1_sync_i) and keypad_valid = '1') then
+                                    state_i <= SKIP_INSTRUCTION;
+                                 end if;
                             when LD_TIMER => 
                                 state_i <= STORE_VX_REG;
                             when LD_KEY => 
@@ -540,10 +551,10 @@ begin
                         state_i <= JUMP_ADDRESS;
                     when CHECK_ZERO =>
                         state_i <= WAIT_CLK;
-                        if (alu_ZF_i = '1' and (opc_i = SE_BYTE or opc_i = SE_REG or opc_i = SKP_KEY)) then
+                        if (alu_ZF_i = '1' and (opc_i = SE_BYTE or opc_i = SE_REG)) then
                             state_i <= SKIP_INSTRUCTION;
                         end if;
-                        if (alu_ZF_i = '0' and (opc_i = SNE_BYTE or opc_i = SNE_REG or opc_i = SKNP_KEY)) then
+                        if (alu_ZF_i = '0' and (opc_i = SNE_BYTE or opc_i = SNE_REG)) then
                             state_i <= SKIP_INSTRUCTION;
                         end if;
                     when SKIP_INSTRUCTION =>
@@ -585,12 +596,7 @@ begin
                         end if;
                     when HALT_UNTIL_PRESS =>
                         if (keypad_valid = '1') then
-                            keypad_key_i <= keypad_key;
-                            if (opc_i = LD_KEY) then
-                                state_i <= STORE_VX_REG;
-                            elsif (opc_i = SKP_KEY) then
-                                state_i <= CHECK_ZERO;
-                            end if;
+                            state_i <= STORE_VX_REG;
                         end if;
                     when GPU_CLEAR =>
                         if (gpu_ready = '1') then
@@ -604,7 +610,11 @@ begin
                         end if;
                     when WAIT_FOR_GPU =>
                         if (gpu_ready = '1') then
-                            state_i <= STORE_CARRY_REG;
+                            if (opc_i = DRW) then
+                                state_i <= STORE_CARRY_REG;
+                            else
+                                state_i <= WAIT_CLK;
+                            end if;
                         end if;
                         wait_state_i <= WAIT_CLK;
                     when WAIT_CYCLE =>

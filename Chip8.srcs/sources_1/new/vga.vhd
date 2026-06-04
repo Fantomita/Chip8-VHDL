@@ -51,7 +51,8 @@ signal v_counter_en_i : STD_LOGIC := '0';
 signal active_video_i : STD_LOGIC := '0';
 
 -- SCALING FACTOR
-constant SCALE_FACTOR : integer := 8;
+constant SCALE_FACTOR_X : integer := 10;
+constant SCALE_FACTOR_Y : integer := 15;
 
 -- HORIZONTAL Constants
 constant H_FRONT_PORCH : integer := 16;
@@ -59,7 +60,7 @@ constant H_SYNC_PULSE : integer := 96;
 constant H_BACK_PORCH : integer := 48;
 constant H_ACTIVE_VIDEO : integer := 640;
 constant H_TOTAL_PIXELS : integer := 800;
-constant H_CHIP8_ACTIVE : integer := 64 * SCALE_FACTOR;
+constant H_CHIP8_ACTIVE : integer := 64 * SCALE_FACTOR_X;
 constant H_PADDING : integer := (H_ACTIVE_VIDEO - H_CHIP8_ACTIVE) / 2;
 constant H_INACTIVE_AREA_L : integer := H_SYNC_PULSE + H_BACK_PORCH + H_PADDING;
 constant H_INACTIVE_AREA_R : integer := H_FRONT_PORCH + H_PADDING;
@@ -70,7 +71,7 @@ constant V_SYNC_PULSE : integer := 2;
 constant V_BACK_PORCH : integer := 33;
 constant V_ACTIVE_VIDEO : integer := 480;
 constant V_TOTAL_PIXELS : integer := 524;
-constant V_CHIP8_ACTIVE : integer := 32 * SCALE_FACTOR;
+constant V_CHIP8_ACTIVE : integer := 32 * SCALE_FACTOR_Y;
 constant V_PADDING : integer := (V_ACTIVE_VIDEO - V_CHIP8_ACTIVE) / 2;
 constant V_INACTIVE_AREA_U : integer := V_SYNC_PULSE + V_BACK_PORCH + V_PADDING;
 constant V_INACTIVE_AREA_D : integer := V_FRONT_PORCH + V_PADDING;
@@ -80,13 +81,13 @@ constant H_VGA_END   : integer := H_VGA_START + H_ACTIVE_VIDEO;
 constant V_VGA_START : integer := V_SYNC_PULSE + V_BACK_PORCH;
 constant V_VGA_END   : integer := V_VGA_START + V_ACTIVE_VIDEO;
 
+signal h_scale_counter : unsigned (7 downto 0) := (others => '0');
+signal v_scale_counter : unsigned (7 downto 0) := (others => '0');
 
-signal x_i : unsigned (15 downto 0);
-signal y_i : unsigned (15 downto 0);
+signal pixel_x_i : unsigned (15 downto 0) := (others => '0');
+signal pixel_y_i : unsigned (15 downto 0) := (others => '0');
 
-signal pixel_x_i : unsigned (15 downto 0);
-signal pixel_y_i : unsigned (15 downto 0);
-
+signal pixel_x_pipeline : unsigned (2 downto 0) := (others => '0');
 
 -- active area
 -- h: 64*8 = 512
@@ -97,14 +98,6 @@ signal pixel_y_i : unsigned (15 downto 0);
 -- v : 480 - 256 = 224 / 2 = 112
 
 begin
-
-x_i <= h_counter_i - H_INACTIVE_AREA_L when (h_counter_i >= H_INACTIVE_AREA_L) else (others => '0');
-y_i <= v_counter_i - V_INACTIVE_AREA_U when (v_counter_i >= V_INACTIVE_AREA_U) else (others => '0');
-
-pixel_x_i <= x_i / SCALE_FACTOR; -- bit
-pixel_y_i <= y_i / SCALE_FACTOR; -- line
-
-vram_addr <= render_buffer & resize(shift_right(pixel_x_i, 3) + shift_left(pixel_y_i, 3), 8);
 
 active_video_i <= '1' when (h_counter_i >= H_INACTIVE_AREA_L and h_counter_i < (H_TOTAL_PIXELS - H_INACTIVE_AREA_R)) and
                            (v_counter_i >= V_INACTIVE_AREA_U and v_counter_i < (V_TOTAL_PIXELS - V_INACTIVE_AREA_D)) else '0';
@@ -123,8 +116,7 @@ begin
                 v_counter_en_i <= '1';
             end if;
         end if;
-    end if;
-    
+    end if; 
 end process;
 
 vertical_counter : process(CLK)
@@ -140,7 +132,47 @@ begin
                 end if;
             end if;
         end if;
-end if; 
+    end if; 
+end process;
+
+pixel_x_generator : process(CLK)
+begin
+    if rising_edge(clk) then
+        if tick_vga = '1' then
+            if h_counter_i = H_INACTIVE_AREA_L - 1 then
+                pixel_x_i <= (others => '0');
+                h_scale_counter <= (others => '0');
+            elsif h_counter_i >= H_INACTIVE_AREA_L and h_counter_i < (H_TOTAL_PIXELS - H_INACTIVE_AREA_R) then
+                if h_scale_counter = SCALE_FACTOR_X - 1 then
+                    h_scale_counter <= (others => '0');
+                    pixel_x_i <= pixel_x_i + 1;
+                else
+                    h_scale_counter <= h_scale_counter + 1;
+                end if;
+            end if;
+        end if;
+    end if;
+end process;
+
+pixel_y_generator : process(CLK)
+begin
+    if rising_edge(clk) then
+        if tick_vga = '1' then
+            if v_counter_en_i = '1' then
+                if v_counter_i = V_INACTIVE_AREA_U - 1 then
+                    pixel_y_i <= (others => '0');
+                    v_scale_counter <= (others => '0');
+                elsif v_counter_i >= V_INACTIVE_AREA_U and v_counter_i < (V_TOTAL_PIXELS - V_INACTIVE_AREA_D) then
+                    if v_scale_counter = SCALE_FACTOR_Y - 1 then
+                        v_scale_counter <= (others => '0');
+                        pixel_y_i <= pixel_y_i + 1;
+                    else
+                        v_scale_counter <= v_scale_counter + 1;
+                    end if;
+                end if;
+            end if;
+        end if;
+    end if;
 end process;
 
 --active_area : process(CLK)
@@ -177,6 +209,13 @@ begin
     end if;
 end process;
 
+pipeline_memory : process(CLK)
+begin
+    if rising_edge(clk) then
+        vram_addr <= render_buffer & pixel_y_i(4 downto 0) & pixel_x_i(5 downto 3);
+        pixel_x_pipeline <= pixel_x_i(2 downto 0);
+    end if;
+end process;
 
 draw : process(CLK)
 begin
@@ -185,7 +224,7 @@ begin
             if (h_counter_i >= H_VGA_START and h_counter_i < H_VGA_END) and
                (v_counter_i >= V_VGA_START and v_counter_i < V_VGA_END) then
                 if active_video_i = '1' then
-                    if vram_data(7 - (to_integer(pixel_x_i) mod 8)) = '1' then
+                    if vram_data(7 - to_integer(pixel_x_pipeline)) = '1' then
                         RGB <= x"FFF";
                     else
                         RGB <= x"000";
@@ -196,7 +235,6 @@ begin
             else
                 RGB <= x"000";
             end if;
-            
         end if; 
     end if;
 end process;
